@@ -1,0 +1,64 @@
+<div class="page-title">
+  <div>
+    <h2>Profile</h2>
+    <p>Thong tin tai khoan dang dang nhap.</p>
+  </div>
+</div>
+
+@if (isLoading) {
+  <p class="loading-message">Dang tai profile...</p>
+} @else if (errorMessage) {
+  <p class="error-message">{{ errorMessage }}</p>
+} @else {
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <th>Username</th>
+            <td>{{ me?.username }}</td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td>{{ me?.email || '-' }}</td>
+          </tr>
+          <tr>
+            <th>Full name</th>
+            <td>{{ me?.fullName || '-' }}</td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td><span class="status-pill">{{ me?.status }}</span></td>
+          </tr>
+          <tr>
+            <th>Roles</th>
+            <td>{{ me?.roles?.join(', ') || '-' }}</td>
+          </tr>
+          <tr>
+            <th>Can update profile</th>
+            <td>{{ canUpdateProfile() ? 'Yes' : 'No' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Permission</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (permission of me?.permissions; track permission) {
+            <tr>
+              <td>{{ permission }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

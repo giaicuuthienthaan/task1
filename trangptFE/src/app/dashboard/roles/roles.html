@@ -1,0 +1,92 @@
+<div class="page-title">
+  <div>
+    <h2>Roles</h2>
+    <p>Du lieu tu bang public.roles.</p>
+  </div>
+  <span>{{ roles.length }} records</span>
+</div>
+
+@if (canCreate || canUpdate || canAssignPermission) {
+<form class="form-panel" (ngSubmit)="save()">
+  <div class="form-grid">
+    <label class="field">
+      <span>Code</span>
+      <input name="code" [(ngModel)]="form.code" [disabled]="editingId !== null && !canUpdate" required />
+    </label>
+    <label class="field">
+      <span>Name</span>
+      <input name="name" [(ngModel)]="form.name" [disabled]="editingId !== null && !canUpdate" required />
+    </label>
+    <label class="field">
+      <span>Description</span>
+      <input name="description" [(ngModel)]="form.description" [disabled]="editingId !== null && !canUpdate" />
+    </label>
+    <div class="field">
+      <span>Permissions</span>
+      <div class="check-list">
+        @for (permission of permissions; track permission.id) {
+          <label class="check-item">
+            <input
+              type="checkbox"
+              [checked]="isPermissionSelected(permission.code)"
+              [disabled]="!canAssignPermission"
+              (change)="togglePermission(permission.code, $any($event.target).checked)"
+            />
+            <span>{{ permission.code }} - {{ permission.name }}</span>
+          </label>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn-primary" type="submit">{{ editingId ? 'Cap nhat' : 'Them moi' }}</button>
+    @if (editingId) {
+      <button class="btn-secondary" type="button" (click)="cancelEdit()">Huy</button>
+    }
+  </div>
+</form>
+}
+
+@if (isLoading) {
+  <p class="loading-message">Dang tai roles...</p>
+} @else if (errorMessage) {
+  <p class="error-message">{{ errorMessage }}</p>
+} @else {
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Permissions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (role of roles; track role.id) {
+            <tr>
+              <td>{{ role.id }}</td>
+              <td>{{ role.code }}</td>
+              <td>{{ role.name }}</td>
+              <td>{{ role.description || '-' }}</td>
+              <td>{{ role.permissions.join(', ') || '-' }}</td>
+              <td>
+                <div class="row-actions">
+                  @if (canUpdate || canAssignPermission) {
+                    <button class="btn-secondary" type="button" (click)="edit(role)">Sua</button>
+                  }
+                  @if (canDelete) {
+                    <button class="btn-danger" type="button" (click)="delete(role)">Xoa</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

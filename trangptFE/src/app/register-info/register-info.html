@@ -1,0 +1,534 @@
+﻿<section class="info-page">
+  <main class="info-shell">
+    <a class="back-link" routerLink="/dashboard/overview">← Quay lại dashboard</a>
+
+    <section class="hero-panel">
+      <div>
+        <p class="kicker">UI Kit Playground</p>
+        <h1>Form đăng ký nhân sự</h1>
+        <p class="subtitle">
+          Trang này dùng chính thư viện <strong>@platform/ui-kit</strong> để kiểm tra form thực tế và toàn bộ trạng thái của các ss-component.
+        </p>
+      </div>
+      <div class="hero-stat">
+        <span>Component</span>
+        <strong>4 nhóm</strong>
+      </div>
+    </section>
+
+    <form class="info-card" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <header class="card-header">
+        <div>
+          <p class="kicker">Layer 1</p>
+          <h2>Form nhập thông tin thực tế</h2>
+          <p>Kiểm tra phối hợp ss-input, ss-datepicker, ss-checkbox và ss-button trong một workflow hoàn chỉnh.</p>
+        </div>
+        <span class="status-pill" [class.status-pill-valid]="registerForm.valid">
+          {{ registerForm.valid ? 'Form hợp lệ' : 'Cần bổ sung' }}
+        </span>
+      </header>
+
+      <section class="form-layer">
+        <div class="section-heading">
+          <div>
+            <h3>Thông tin cá nhân</h3>
+            <p>Validate required, pattern, clear, count và lỗi nhập liệu.</p>
+          </div>
+          <ss-button type="default" htmlType="button" size="small" (click)="clearPersonalLayer()">Clear</ss-button>
+        </div>
+
+        <div class="field-grid">
+          <ss-input
+            label="Họ và tên"
+            placeholder="Nhập họ và tên"
+            formControlName="fullName"
+            [required]="true"
+            [noWhitespace]="true"
+            [allowClear]="true"
+            [maxlength]="60"
+            [showCount]="true"
+            countPosition="below"
+            hint="Không để trống hoặc chỉ nhập khoảng trắng"
+          />
+
+          <ss-input
+            label="Mã nhân viên"
+            placeholder="Ví dụ: NV001"
+            formControlName="employeeCode"
+            [required]="true"
+            [allowClear]="true"
+            [maxlength]="12"
+            [showCount]="true"
+            prefix="ID"
+            countPosition="below"
+          />
+
+          <ss-input
+            label="Email"
+            placeholder="name@company.com"
+            formControlName="email"
+            [required]="true"
+            [allowClear]="true"
+            prefix="@"
+            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+            [errorMessages]="{ pattern: 'Email không đúng định dạng' }"
+          />
+
+          <ss-input
+            label="Số điện thoại"
+            placeholder="Nhập số điện thoại"
+            formControlName="phone"
+            [required]="true"
+            [allowClear]="true"
+            pattern="^0\d{9}$"
+            [errorMessages]="{ pattern: 'Số điện thoại phải bắt đầu bằng 0 và gồm 10 số' }"
+          />
+        </div>
+      </section>
+
+      <section class="form-layer layer-soft">
+        <div class="section-heading">
+          <div>
+            <h3>Thời gian</h3>
+            <p>Mỗi ngày dùng một datepicker riêng để test validate ngày bắt đầu và ngày kết thúc rõ ràng.</p>
+          </div>
+          <ss-button type="default" htmlType="button" size="small" (click)="clearTimeLayer()">Clear</ss-button>
+        </div>
+
+        <div class="field-grid date-grid">
+          <ss-datepicker
+            label="Ngày sinh"
+            type="date"
+            valueFormat="date"
+            placeholder="Chọn ngày sinh"
+            formControlName="birthday"
+            format="yyyy/MM/dd"
+            [readonly]="false"
+            [required]="true"
+            [notFuture]="true"
+            [maxDate]="maxBirthDate"
+            [allowClear]="true"
+            [errorMessages]="{ notFuture: 'Ngày sinh không được lớn hơn ngày hiện tại', maxDate: 'Ngày sinh không được lớn hơn ngày hiện tại' }"
+          />
+
+          <ss-datepicker
+            label="Ngày bắt đầu làm việc"
+            type="date"
+            valueFormat="date"
+            placeholder="Chọn ngày bắt đầu"
+            formControlName="workStartDate"
+            [required]="true"
+            [minDate]="minWorkDate"
+            [maxDate]="maxWorkDate"
+            [allowClear]="true"
+            [errorMessages]="{
+              required: 'Ngày bắt đầu không được để trống',
+              minDate: 'Ngày bắt đầu không được nhỏ hơn hôm nay',
+              maxDate: 'Ngày bắt đầu vượt quá giới hạn cho phép'
+            }"
+          />
+
+          <ss-datepicker
+            label="Ngày kết thúc làm việc"
+            type="date"
+            valueFormat="date"
+            placeholder="Chọn ngày kết thúc"
+            formControlName="workEndDate"
+            [required]="true"
+            [minDate]="minWorkDate"
+            [maxDate]="maxWorkDate"
+            [allowClear]="true"
+            [errorMessages]="{
+              required: 'Ngày kết thúc không được để trống',
+              minDate: 'Ngày kết thúc không được nhỏ hơn hôm nay',
+              maxDate: 'Ngày kết thúc vượt quá giới hạn cho phép'
+            }"
+          />
+        </div>
+
+        <p class="field-error" *ngIf="workDateOrderError">Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.</p>
+      </section>
+
+      <section class="form-layer">
+        <div class="section-heading">
+          <div>
+            <h3>Liên hệ và xác nhận</h3>
+            <p>Test checkbox đơn, checkbox nhóm, required và requiredTrue.</p>
+          </div>
+          <ss-button type="default" htmlType="button" size="small" (click)="clearConfirmLayer()">Clear</ss-button>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label">Kênh liên hệ ưu tiên <span>*</span></label>
+          <ss-checkbox formControlName="contactMethods" [options]="contactOptions" [required]="true" />
+          <p class="field-error" *ngIf="registerForm.controls.contactMethods.touched && registerForm.controls.contactMethods.invalid">
+            Vui lòng chọn ít nhất một kênh liên hệ.
+          </p>
+        </div>
+
+        <ss-input
+          label="Ghi chú"
+          type="textarea"
+          placeholder="Nhập ghi chú cho hồ sơ"
+          formControlName="note"
+          [rows]="4"
+          [maxlength]="160"
+          [showCount]="true"
+          countPosition="below"
+        />
+
+        <div class="confirm-row">
+          <ss-checkbox
+            label="Tôi xác nhận thông tin đã nhập là chính xác"
+            formControlName="acceptPolicy"
+            [requiredTrue]="true"
+          />
+          <p class="field-error" *ngIf="registerForm.controls.acceptPolicy.touched && registerForm.controls.acceptPolicy.invalid">
+            Bạn cần xác nhận trước khi gửi form.
+          </p>
+        </div>
+      </section>
+
+      <footer class="form-actions">
+        <div class="form-state">
+          <strong>{{ registerForm.valid ? 'Sẵn sàng gửi' : 'Chưa đủ thông tin' }}</strong>
+          <span>{{ registerForm.valid ? 'Bạn có thể gửi hồ sơ.' : 'Vui lòng kiểm tra các trường bắt buộc.' }}</span>
+        </div>
+        <div class="action-buttons">
+          <ss-button type="default" htmlType="button" (click)="onReset()">Đặt lại</ss-button>
+          <ss-button htmlType="submit" [loading]="isSubmitting" loadingText="Đang gửi">Gửi thông tin</ss-button>
+        </div>
+      </footer>
+    </form>
+
+    <section class="demo-card">
+      <header class="card-header compact">
+        <div>
+          <p class="kicker">Layer 2</p>
+          <h2>ss-button</h2>
+          <p>Kiểm tra type, variant, color, shape, block, disabled và loading.</p>
+        </div>
+        <ss-button type="default" htmlType="button" size="small" (click)="clearButtonLayer()">Clear</ss-button>
+      </header>
+
+      <div class="demo-layer">
+        <h3>Type mặc định</h3>
+        <div class="button-row">
+          <ss-button type="primary">Primary</ss-button>
+          <ss-button type="default">Default</ss-button>
+          <ss-button type="dashed">Dashed</ss-button>
+          <ss-button type="text">Text</ss-button>
+          <ss-button type="link">Link</ss-button>
+          <ss-button type="danger">Danger</ss-button>
+          <ss-button type="success">Success</ss-button>
+          <ss-button type="warning">Warning</ss-button>
+        </div>
+      </div>
+
+      <div class="demo-layer layer-soft">
+        <h3>Variant và trạng thái</h3>
+        <div class="button-row">
+          <ss-button color="primary" variant="solid">Solid</ss-button>
+          <ss-button color="primary" variant="outline">Outline</ss-button>
+          <ss-button color="primary" variant="soft">Soft</ss-button>
+          <ss-button color="primary" variant="ghost">Ghost</ss-button>
+          <ss-button color="warning" variant="dashed">Warning dashed</ss-button>
+          <ss-button color="danger" variant="text">Danger text</ss-button>
+          <ss-button color="success" variant="link">Success link</ss-button>
+        </div>
+        <div class="button-row mt-12">
+          <ss-button shape="round">Bo tròn</ss-button>
+          <ss-button shape="circle" tooltip="Nút tròn">OK</ss-button>
+          <ss-button [disabled]="true">Disabled</ss-button>
+          <ss-button [loading]="buttonLoading" loadingText="Đang xử lý" (click)="startLoadingDemo()">Test loading</ss-button>
+        </div>
+        <ss-button class="block-demo" [block]="true">Nút toàn chiều ngang</ss-button>
+      </div>
+    </section>
+
+    <section class="demo-card">
+      <header class="card-header compact">
+        <div>
+          <p class="kicker">Layer 3</p>
+          <h2>ss-input</h2>
+          <p>Kiểm tra label, hint, layout, count, prefix/suffix, pattern, textarea, readonly, disabled và ẩn/hiện lỗi.</p>
+        </div>
+        <ss-button type="default" htmlType="button" size="small" (click)="clearInputLayer()">Clear</ss-button>
+      </header>
+
+      <div class="demo-grid">
+        <ss-input
+          label="Input text"
+          placeholder="Nhập tối thiểu 3 ký tự"
+          [(ngModel)]="inputText"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+          [minlength]="3"
+          [maxlength]="30"
+          [showCount]="true"
+          [allowClear]="true"
+          hint="Có required, minLength, maxLength, clear và bộ đếm"
+        />
+
+        <ss-input
+          label="Mật khẩu"
+          type="password"
+          placeholder="Nhập mật khẩu"
+          [(ngModel)]="inputPassword"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+          [minlength]="6"
+          [allowClear]="true"
+        />
+
+        <ss-input
+          label="Mã nội bộ"
+          placeholder="ABC123"
+          [(ngModel)]="inputHiddenError"
+          [ngModelOptions]="{ standalone: true }"
+          [noWhitespace]="true"
+          [showError]="true"
+          suffix="bắt buộc khác khoảng trắng"
+        />
+
+        <ss-input
+          label="Layout ngang"
+          layout="horizontal"
+          labelWidth="130px"
+          placeholder="Kiểm tra labelWidth"
+          [(ngModel)]="inputHorizontal"
+          [ngModelOptions]="{ standalone: true }"
+          [allowClear]="true"
+        />
+
+        <ss-input
+          label="Inline"
+          layout="inline"
+          placeholder="Nhập nhanh"
+          [(ngModel)]="inputInline"
+          [ngModelOptions]="{ standalone: true }"
+          prefix="ID"
+          [showCount]="true"
+          countPosition="suffix"
+          [maxlength]="16"
+        />
+
+        <ss-input
+          label="Chỉ đọc"
+          [(ngModel)]="inputReadonly"
+          [ngModelOptions]="{ standalone: true }"
+          [readonly]="true"
+        />
+
+        <ss-input
+          label="Vô hiệu"
+          [(ngModel)]="inputDisabled"
+          [ngModelOptions]="{ standalone: true }"
+          [disabled]="true"
+        />
+
+        <ss-input
+          label="Ẩn label và lỗi"
+          placeholder="Chỉ hiển thị ô nhập"
+          [(ngModel)]="inputText"
+          [ngModelOptions]="{ standalone: true }"
+          [showLabel]="false"
+          [showError]="false"
+          [allowClear]="true"
+        />
+      </div>
+
+      <ss-input
+        label="Textarea"
+        type="textarea"
+        placeholder="Nhập mô tả dài"
+        [(ngModel)]="inputTextarea"
+        [ngModelOptions]="{ standalone: true }"
+        [rows]="4"
+        [maxlength]="140"
+        [showCount]="true"
+        countPosition="below"
+      />
+    </section>
+
+    <section class="demo-card">
+      <header class="card-header compact">
+        <div>
+          <p class="kicker">Layer 4</p>
+          <h2>ss-checkbox</h2>
+          <p>Kiểm tra checkbox đơn, indeterminate, disabled, nhóm option và required.</p>
+        </div>
+        <ss-button type="default" htmlType="button" size="small" (click)="clearCheckboxLayer()">Clear</ss-button>
+      </header>
+
+      <div class="checkbox-demo-grid">
+        <div class="demo-box">
+          <h3>Checkbox đơn</h3>
+          <ss-checkbox label="Tôi đồng ý điều khoản" 
+          [(ngModel)]="checkboxSingle" 
+          [ngModelOptions]="{ standalone: true }" 
+          [requiredTrue]="true" />
+          <pre>single: {{ checkboxSingle | json }}</pre>
+        </div>
+
+        <div class="demo-box">
+          <h3>Indeterminate</h3>
+          <ss-checkbox label="Trạng thái chưa xác định" [(ngModel)]="checkboxIndeterminate" [ngModelOptions]="{ standalone: true }" [indeterminate]="true" />
+          <pre>indeterminate: {{ checkboxIndeterminate | json }}</pre>
+        </div>
+
+        <div class="demo-box">
+          <h3>Disabled</h3>
+          <ss-checkbox label="Không thể chọn" [(ngModel)]="checkboxDisabled" [ngModelOptions]="{ standalone: true }" [disabled]="true" />
+          <pre>disabled: {{ checkboxDisabled | json }}</pre>
+        </div>
+
+        <div class="demo-box wide">
+          <h3>Checkbox nhóm</h3>
+          <ss-checkbox [(ngModel)]="checkboxGroupValues" [ngModelOptions]="{ standalone: true }" [options]="checkboxDemoOptions" [required]="true" />
+          <pre>group: {{ checkboxGroupValues | json }}</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-card">
+      <header class="card-header compact">
+        <div>
+          <p class="kicker">Layer 5</p>
+          <h2>ss-datepicker</h2>
+          <p>Kiểm tra giao diện Figma mới: field 48px, panel 280px, ô ngày 40px, hover brand, selected gray, current date có viền và đầy đủ API.</p>
+        </div>
+        <ss-button type="default" htmlType="button" size="small" (click)="clearDatepickerLayer()">Clear</ss-button>
+      </header>
+
+      <div class="demo-grid datepicker-demo-grid">
+        <ss-datepicker
+          label="Ngày cơ bản"
+          placeholder="Chọn ngày"
+          [(ngModel)]="dateBasic"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+          [allowClear]="true"
+        />
+
+        <ss-datepicker
+          label="Không chọn tương lai"
+          placeholder="Chỉ chọn hôm nay hoặc quá khứ"
+          [(ngModel)]="dateIso"
+          [ngModelOptions]="{ standalone: true }"
+          valueFormat="iso"
+          [notFuture]="true"
+        />
+
+        <ss-datepicker
+          label="Giới hạn min/max"
+          placeholder="Chọn trong năm nay"
+          [(ngModel)]="dateTimestamp"
+          [ngModelOptions]="{ standalone: true }"
+          valueFormat="timestamp"
+          [minDate]="minDemoDate"
+          [maxDate]="maxDemoDate"
+        />
+
+        <ss-datepicker
+          label="Format yyyy-MM-dd"
+          placeholder="Trả về chuỗi yyyy-MM-dd"
+          [(ngModel)]="dateCustomFormat"
+          [ngModelOptions]="{ standalone: true }"
+          valueFormat="yyyy-MM-dd"
+          format="yyyy-MM-dd"
+        />
+
+        <ss-datepicker
+          label="Chọn tháng"
+          type="month"
+          placeholder="Chọn tháng"
+          [(ngModel)]="dateMonth"
+          [ngModelOptions]="{ standalone: true }"
+        />
+
+        <ss-datepicker
+          label="Có giờ"
+          placeholder="Chọn ngày giờ"
+          [(ngModel)]="dateWithTime"
+          [ngModelOptions]="{ standalone: true }"
+          [showTime]="true"
+          timezone="Europe/Berlin"
+          format="dd/MM/yyyy HH:mm"
+        />
+
+        <ss-datepicker
+          label="Không cho clear"
+          [(ngModel)]="dateNoClear"
+          [ngModelOptions]="{ standalone: true }"
+          [allowClear]="false"
+        />
+
+        <ss-datepicker
+          label="Ẩn icon lịch"
+          placeholder="Không hiển thị suffix icon"
+          [(ngModel)]="dateNoIcon"
+          [ngModelOptions]="{ standalone: true }"
+          [showIcon]="false"
+        />
+
+        <ss-datepicker
+          label="Chặn cuối tuần"
+          placeholder="Thứ 7/CN bị khóa"
+          [(ngModel)]="dateBasic"
+          [ngModelOptions]="{ standalone: true }"
+          [disabledDate]="blockWeekend"
+        />
+
+        <ss-datepicker
+          label="Vô hiệu"
+          [(ngModel)]="dateDisabled"
+          [ngModelOptions]="{ standalone: true }"
+          [disabled]="true"
+        />
+
+        <ss-datepicker
+          label="Ngày đi"
+          placeholder="Chọn ngày đi"
+          [(ngModel)]="dateRangeStart"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+        />
+
+        <ss-datepicker
+          label="Ngày về"
+          placeholder="Chọn ngày về"
+          [(ngModel)]="dateRangeEnd"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+        />
+      </div>
+
+      <details class="debug-panel" open>
+        <summary>Giá trị demo datepicker</summary>
+        <pre>{{ {
+          dateBasic: dateBasic,
+          dateIso: dateIso,
+          dateTimestamp: dateTimestamp,
+          dateCustomFormat: dateCustomFormat,
+          dateMonth: dateMonth,
+          dateWithTime: dateWithTime,
+          dateNoIcon: dateNoIcon,
+          dateRangeStart: dateRangeStart,
+          dateRangeEnd: dateRangeEnd
+        } | json }}</pre>
+      </details>
+    </section>
+
+    <details class="debug-panel final-debug" open>
+      <summary>Dữ liệu form thực tế</summary>
+      <pre>{{ registerForm.getRawValue() | json }}</pre>
+      <pre>valid: {{ registerForm.valid }} | touched: {{ registerForm.touched }}</pre>
+    </details>
+
+    <details class="debug-panel final-debug" *ngIf="submittedValue" open>
+      <summary>Dữ liệu đã gửi</summary>
+      <pre>{{ submittedValue | json }}</pre>
+    </details>
+  </main>
+</section>

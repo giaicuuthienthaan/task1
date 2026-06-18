@@ -1,0 +1,45 @@
+﻿@if (isLoading) {
+  <div class="loading-page">Dang tai dashboard...</div>
+} @else {
+  <main class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="brand">SSVN</div>
+      <nav>
+        @if (canAccess('DASHBOARD_VIEW')) {
+          <a class="nav-item" routerLink="/dashboard/overview" routerLinkActive="active">Dashboard</a>
+        }
+        @if (canAccess('PROFILE_VIEW')) {
+          <a class="nav-item" routerLink="/dashboard/profile" routerLinkActive="active">Profile</a>
+        }
+        @if (canAccess('USER_VIEW')) {
+          <a class="nav-item" routerLink="/dashboard/users" routerLinkActive="active">Users</a>
+        }
+        @if (canAccess('ROLE_VIEW')) {
+          <a class="nav-item" routerLink="/dashboard/roles" routerLinkActive="active">Roles</a>
+        }
+        @if (canAccess('PERMISSION_VIEW')) {
+          <a class="nav-item" routerLink="/dashboard/permissions" routerLinkActive="active">Permissions</a>
+        }
+        @if (me?.superAdmin) {
+          <a class="nav-item" routerLink="/dashboard/positions" routerLinkActive="active">Positions</a>
+        }
+      </nav>
+    </aside>
+
+    <section class="admin-content">
+      <header class="admin-header">
+        <div>
+          <h1>Super Admin</h1>
+          <p>{{ me?.fullName || me?.username }}</p>
+        </div>
+                <div class="header-actions">
+          <a class="btn-info" routerLink="/register-info">Điền thông tin</a>
+          <button class="btn-logout" type="button" (click)="logout()">Dang xuat</button>
+        </div>
+      </header>
+
+      <router-outlet />
+    </section>
+  </main>
+}
+

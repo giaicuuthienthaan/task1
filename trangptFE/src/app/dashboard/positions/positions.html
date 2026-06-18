@@ -1,0 +1,68 @@
+<div class="page-title">
+  <div>
+    <h2>Positions</h2>
+    <p>Du lieu tu bang public.positions.</p>
+  </div>
+  <span>{{ positions.length }} records</span>
+</div>
+
+<form class="form-panel" (ngSubmit)="save()">
+  <div class="form-grid">
+    <label class="field">
+      <span>Code</span>
+      <input name="code" [(ngModel)]="form.code" required />
+    </label>
+    <label class="field">
+      <span>Name</span>
+      <input name="name" [(ngModel)]="form.name" required />
+    </label>
+    <label class="field">
+      <span>Description</span>
+      <input name="description" [(ngModel)]="form.description" />
+    </label>
+  </div>
+  <div class="form-actions">
+    <button class="btn-primary" type="submit">{{ editingId ? 'Cap nhat' : 'Them moi' }}</button>
+    @if (editingId) {
+      <button class="btn-secondary" type="button" (click)="cancelEdit()">Huy</button>
+    }
+  </div>
+</form>
+
+@if (isLoading) {
+  <p class="loading-message">Dang tai positions...</p>
+} @else if (errorMessage) {
+  <p class="error-message">{{ errorMessage }}</p>
+} @else {
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (position of positions; track position.id) {
+            <tr>
+              <td>{{ position.id }}</td>
+              <td>{{ position.code }}</td>
+              <td>{{ position.name }}</td>
+              <td>{{ position.description || '-' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-secondary" type="button" (click)="edit(position)">Sua</button>
+                  <button class="btn-danger" type="button" (click)="delete(position)">Xoa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

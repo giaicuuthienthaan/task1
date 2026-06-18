@@ -1,0 +1,403 @@
+﻿:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--color-bg-layout, #f4f7fb);
+}
+
+/* Page layout */
+.info-page {
+  min-height: 100vh;
+  padding: 28px 20px 48px;
+  color: var(--color-text, #1f2937);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.info-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: var(--color-primary, #1677ff);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-primary-hover, #4096ff);
+}
+
+/* Shared cards */
+.hero-panel,
+.info-card,
+.demo-card,
+.debug-panel {
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 12px;
+  background: var(--color-bg-container, #fff);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.hero-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 30px 34px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-primary-bg, #eef6ff) 100%);
+}
+
+.info-card,
+.demo-card {
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--color-border-secondary, #e5e7eb);
+}
+
+.card-header.compact {
+  padding-bottom: 20px;
+}
+
+/* Typography */
+.kicker {
+  margin: 0 0 8px;
+  color: var(--color-primary, #1677ff);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--color-text, #111827);
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 750;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 720;
+}
+
+h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.subtitle,
+.card-header p,
+.section-heading p,
+.form-state span {
+  color: var(--color-text-secondary, #64748b);
+  line-height: 1.6;
+}
+
+.subtitle,
+.card-header p,
+.section-heading p {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.hero-stat {
+  display: grid;
+  place-content: center;
+  min-width: 140px;
+  padding: 16px;
+  border: 1px solid var(--color-primary-border, #91caff);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.hero-stat span {
+  color: var(--color-text-secondary, #64748b);
+  font-size: 12px;
+}
+
+.hero-stat strong {
+  color: var(--color-primary, #1677ff);
+  font-size: 22px;
+}
+
+/* Form sections */
+.form-layer,
+.demo-layer {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--color-border-secondary, #e5e7eb);
+}
+
+.layer-soft {
+  background: #fbfdff;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.section-heading ss-button,
+.card-header ss-button {
+  flex: none;
+}
+
+.field-grid,
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 28px;
+}
+
+.date-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.field-block {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.field-label span,
+.field-error {
+  color: var(--color-error, #ff4d4f);
+}
+
+.field-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+.status-pill {
+  white-space: nowrap;
+  padding: 5px 12px;
+  border: 1px solid var(--color-error-border, #ffccc7);
+  border-radius: 999px;
+  background: var(--color-error-bg, #fff2f0);
+  color: var(--color-error, #ff4d4f);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill-valid {
+  border-color: var(--color-success-border, #b7eb8f);
+  background: var(--color-success-bg, #f6ffed);
+  color: var(--color-success, #52c41a);
+}
+
+.confirm-row {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-primary-border, #91caff);
+  border-radius: 10px;
+  background: var(--color-primary-bg, #eef6ff);
+}
+
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.form-state {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.form-state strong {
+  color: var(--color-text, #111827);
+}
+
+.action-buttons,
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}
+
+.block-demo {
+  display: block;
+  margin-top: 14px;
+}
+
+/* Demo blocks */
+.checkbox-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 24px 28px;
+}
+
+.demo-box {
+  min-height: 132px;
+  padding: 16px;
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.demo-box.wide {
+  grid-column: 1 / -1;
+}
+
+.datepicker-demo-grid {
+  padding: 24px 28px;
+}
+
+.datepicker-demo-grid ss-datepicker {
+  align-self: start;
+}
+
+.demo-box h3,
+.demo-layer h3 {
+  margin-bottom: 12px;
+}
+
+.debug-panel {
+  margin: 18px 28px 24px;
+  box-shadow: none;
+}
+
+.final-debug {
+  margin: 0 0 18px;
+}
+
+.debug-panel summary {
+  cursor: pointer;
+  padding: 11px 13px;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.debug-panel pre,
+.demo-box pre {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.debug-panel pre {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* UI-kit host sizing only: không đè border/error/focus bên trong component. */
+.info-shell ss-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  --input-height-default: 44px;
+  --input-radius: 10px;
+}
+
+.info-shell ss-datepicker {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.info-shell ss-checkbox {
+  display: block;
+}
+
+/* Chỉ chỉnh khoảng cách nhóm checkbox cho demo, không can thiệp trạng thái checked/error. */
+.info-shell ::ng-deep .ss-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+}
+
+/* Hiệu ứng hover ngoài button, phần màu/disabled/loading do ss-button tự xử lý. */
+.info-shell ::ng-deep ss-button .ant-btn:not([disabled]) {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.info-shell ::ng-deep ss-button .ant-btn:not([disabled]):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(22, 119, 255, 0.16);
+}
+
+@media (max-width: 960px) {
+  .date-grid,
+  .field-grid,
+  .demo-grid,
+  .checkbox-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel,
+  .card-header,
+  .section-heading,
+  .form-actions {
+    display: block;
+  }
+
+  .hero-stat,
+  .status-pill,
+  .section-heading ss-button,
+  .action-buttons {
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .info-page {
+    padding: 16px;
+  }
+
+  .hero-panel,
+  .card-header,
+  .form-layer,
+  .demo-layer,
+  .checkbox-demo-grid,
+  .form-actions {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}

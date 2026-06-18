@@ -1,0 +1,46 @@
+<div class="login-page">
+  <form class="login-card" (ngSubmit)="login()">
+    <div class="logo-area">
+      <span class="app-icon">SSVN</span>
+    </div>
+
+    <h1>SSVN Platform</h1>
+    <p class="subtitle">Chon loai tai khoan dang nhap.</p>
+
+    @if (!loginMode) {
+      <div class="mode-actions">
+        <button class="mode-card" type="button" (click)="chooseMode('superadmin')" [disabled]="isLoading">
+          <strong>Super Admin</strong>
+          <span>Dang nhap qua Keycloak</span>
+        </button>
+        <button class="mode-card" type="button" (click)="chooseMode('normal')" [disabled]="isLoading">
+          <strong>Tai khoan thuong</strong>
+          <span>Dang nhap bang tai khoan trong DB</span>
+        </button>
+      </div>
+    }
+
+    @if (loginMode === 'normal') {
+      <label class="field">
+        <span>Username</span>
+        <input name="username" type="text" autocomplete="username" [(ngModel)]="username" required />
+      </label>
+
+      <label class="field">
+        <span>Password</span>
+        <input name="password" type="password" autocomplete="current-password" [(ngModel)]="password" required />
+      </label>
+
+      <button class="btn-login" type="submit" [disabled]="isLoading">
+        <span class="btn-text">{{ isLoading ? 'Dang xu ly...' : 'Dang nhap he thong' }}</span>
+        <span class="btn-arrow">-></span>
+      </button>
+
+      <button class="btn-back" type="button" (click)="backToModeSelection()">Chon lai loai tai khoan</button>
+    }
+
+    @if (errorMessage) {
+      <p class="error-message">{{ errorMessage }}</p>
+    }
+  </form>
+</div>

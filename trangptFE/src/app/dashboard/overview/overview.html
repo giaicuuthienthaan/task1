@@ -1,0 +1,69 @@
+<div class="page-title">
+  <div>
+    <h2>Dashboard</h2>
+    <p>{{ me?.superAdmin ? 'Tong quan du lieu trong PostgreSQL.' : 'Tong quan quyen truy cap cua ban.' }}</p>
+  </div>
+</div>
+
+@if (isLoading) {
+  <p class="loading-message">Dang tai du lieu...</p>
+} @else if (errorMessage) {
+  <p class="error-message">{{ errorMessage }}</p>
+} @else if (me?.superAdmin) {
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span>Users</span>
+      <strong>{{ overview?.users?.length || 0 }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Roles</span>
+      <strong>{{ overview?.roles?.length || 0 }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Permissions</span>
+      <strong>{{ overview?.permissions?.length || 0 }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Positions</span>
+      <strong>{{ overview?.positions?.length || 0 }}</strong>
+    </article>
+  </div>
+} @else {
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span>Username</span>
+      <strong>{{ me?.username }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Status</span>
+      <strong>{{ me?.status }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Roles</span>
+      <strong>{{ me?.roles?.join(', ') || '-' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Permissions</span>
+      <strong>{{ me?.permissions?.length || 0 }}</strong>
+    </article>
+  </div>
+
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Permission</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (permission of me?.permissions; track permission) {
+            <tr>
+              <td>{{ permission }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

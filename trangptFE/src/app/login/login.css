@@ -1,0 +1,151 @@
+.login-page {
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  justify-content: center;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  max-width: 450px;
+  padding: 40px;
+  text-align: center;
+  width: 90%;
+}
+
+.logo-area {
+  color: #0066cc;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 20px;
+}
+
+h1 {
+  color: #333333;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.field span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  padding: 12px 14px;
+}
+
+.field input:focus {
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.mode-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.mode-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  text-align: left;
+}
+
+.mode-card:hover {
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.mode-card strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.mode-card span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.btn-login {
+  align-items: center;
+  background-color: #0066cc;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 500;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px 28px;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+}
+
+.btn-login:hover {
+  background-color: #0052a3;
+  box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-login:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.btn-login:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.btn-back {
+  background: transparent;
+  border: 0;
+  color: #334155;
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.error-message {
+  color: #b42318;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 16px 0 0;
+}

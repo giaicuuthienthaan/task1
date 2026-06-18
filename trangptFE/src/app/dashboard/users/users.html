@@ -1,0 +1,117 @@
+<div class="page-title">
+  <div>
+    <h2>Users</h2>
+    <p>Du lieu tu bang public.users.</p>
+  </div>
+  <span>{{ users.length }} records</span>
+</div>
+
+@if (canCreate || canUpdate) {
+<form class="form-panel" (ngSubmit)="save()">
+  <div class="form-grid">
+    <label class="field">
+      <span>Username</span>
+      <input name="username" [(ngModel)]="form.username" required />
+    </label>
+    <label class="field">
+      <span>Email</span>
+      <input name="email" type="email" [(ngModel)]="form.email" />
+    </label>
+    <label class="field">
+      <span>Password</span>
+      <input name="password" type="password" [(ngModel)]="form.password" />
+    </label>
+    <label class="field">
+      <span>Full name</span>
+      <input name="fullName" [(ngModel)]="form.fullName" />
+    </label>
+    <label class="field">
+      <span>Position</span>
+      <select name="positionId" [(ngModel)]="form.positionId">
+        <option [ngValue]="null">No position</option>
+        @for (position of positions; track position.id) {
+          <option [ngValue]="position.id">{{ position.name }}</option>
+        }
+      </select>
+    </label>
+    <label class="field">
+      <span>Status</span>
+      <select name="status" [(ngModel)]="form.status">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="INACTIVE">INACTIVE</option>
+      </select>
+    </label>
+    <div class="field">
+      <span>Roles</span>
+      <div class="check-list">
+        @for (role of roles; track role.id) {
+          <label class="check-item">
+            <input
+              type="checkbox"
+              [checked]="isRoleSelected(role.code)"
+              (change)="toggleRole(role.code, $any($event.target).checked)"
+            />
+            <span>{{ role.code }} - {{ role.name }}</span>
+          </label>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn-primary" type="submit">{{ editingId ? 'Cap nhat' : 'Them moi' }}</button>
+    @if (editingId) {
+      <button class="btn-secondary" type="button" (click)="cancelEdit()">Huy</button>
+    }
+  </div>
+</form>
+}
+
+@if (isLoading) {
+  <p class="loading-message">Dang tai users...</p>
+} @else if (errorMessage) {
+  <p class="error-message">{{ errorMessage }}</p>
+} @else {
+  <section class="data-section">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Full name</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Roles</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.password ? '********' : '-' }}</td>
+              <td>{{ user.fullName }}</td>
+              <td>{{ user.positionName || '-' }}</td>
+              <td><span class="status-pill">{{ user.status }}</span></td>
+              <td>{{ user.roles.join(', ') || '-' }}</td>
+              <td>
+                <div class="row-actions">
+                  @if (canUpdate) {
+                    <button class="btn-secondary" type="button" (click)="edit(user)">Sua</button>
+                  }
+                  @if (canDelete) {
+                    <button class="btn-danger" type="button" (click)="delete(user)">Xoa</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
