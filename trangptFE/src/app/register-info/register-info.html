@@ -158,13 +158,13 @@
           <ss-button type="default" htmlType="button" size="small" (click)="clearConfirmLayer()">Clear</ss-button>
         </div>
 
-        <div class="field-block">
-          <label class="field-label">Kênh liên hệ ưu tiên <span>*</span></label>
-          <ss-checkbox formControlName="contactMethods" [options]="contactOptions" [required]="true" />
-          <p class="field-error" *ngIf="registerForm.controls.contactMethods.touched && registerForm.controls.contactMethods.invalid">
-            Vui lòng chọn ít nhất một kênh liên hệ.
-          </p>
-        </div>
+        <ss-checkbox
+          label="Kênh liên hệ ưu tiên"
+          formControlName="contactMethods"
+          [options]="contactOptions"
+          [required]="true"
+          [errorMessages]="{ required: 'Vui lòng chọn ít nhất một kênh liên hệ.' }"
+        />
 
         <ss-input
           label="Ghi chú"
@@ -182,10 +182,8 @@
             label="Tôi xác nhận thông tin đã nhập là chính xác"
             formControlName="acceptPolicy"
             [requiredTrue]="true"
+            [errorMessages]="{ requiredTrue: 'Bạn cần xác nhận trước khi gửi form.' }"
           />
-          <p class="field-error" *ngIf="registerForm.controls.acceptPolicy.touched && registerForm.controls.acceptPolicy.invalid">
-            Bạn cần xác nhận trước khi gửi form.
-          </p>
         </div>
       </section>
 
@@ -385,7 +383,7 @@
 
         <div class="demo-box wide">
           <h3>Checkbox nhóm</h3>
-          <ss-checkbox [(ngModel)]="checkboxGroupValues" [ngModelOptions]="{ standalone: true }" [options]="checkboxDemoOptions" [required]="true" />
+          <ss-checkbox [(ngModel)]="checkboxGroupValues" [ngModelOptions]="{ standalone: true }" [options]="checkboxDemoOptions" [required]="true" [errorMessages]="{ required: 'eeeeeee'}" />
           <pre>group: {{ checkboxGroupValues | json }}</pre>
         </div>
       </div>
