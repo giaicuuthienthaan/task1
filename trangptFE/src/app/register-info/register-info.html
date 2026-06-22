@@ -158,13 +158,16 @@
           <ss-button type="default" htmlType="button" size="small" (click)="clearConfirmLayer()">Clear</ss-button>
         </div>
 
-        <ss-checkbox
-          label="Kênh liên hệ ưu tiên"
+        <div class="field-block">
+          <ss-checkbox
+          label="Kênh liên hệ ưu tien"
           formControlName="contactMethods"
           [options]="contactOptions"
           [required]="true"
-          [errorMessages]="{ required: 'Vui lòng chọn ít nhất một kênh liên hệ.' }"
+          [errorMessages]="{ required: 'Bắt buộc chọn ít nhất 1 kênh' }"
         />
+          
+        </div>
 
         <ss-input
           label="Ghi chú"

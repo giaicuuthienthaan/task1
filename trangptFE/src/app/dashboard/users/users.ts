@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../auth.service';
 import { PositionItem, RoleItem, UserItem, UserRequest } from '../../auth.types';
+import { SsInputComponent, SsCheckboxComponent, SsButtonComponent, SscheckboxOption } from '@platform/ui-kit';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, SsInputComponent, SsCheckboxComponent, SsButtonComponent],
   templateUrl: './users.html',
   styleUrl: '../admin-page.css'
 })
@@ -15,6 +17,7 @@ export class UsersComponent implements OnInit {
   users: UserItem[] = [];
   roles: RoleItem[] = [];
   positions: PositionItem[] = [];
+  roleOptions: SscheckboxOption[] = [];
   canCreate = false;
   canUpdate = false;
   canDelete = false;
@@ -73,6 +76,7 @@ export class UsersComponent implements OnInit {
       roleCodes: user.roles
     };
     this.selectedRoleCodes = [...user.roles];
+    this.updateRoleOptions();
   }
 
   delete(user: UserItem) {
@@ -95,14 +99,6 @@ export class UsersComponent implements OnInit {
     return this.selectedRoleCodes.includes(roleCode);
   }
 
-  toggleRole(roleCode: string, checked: boolean) {
-    if (checked) {
-      this.selectedRoleCodes = Array.from(new Set([...this.selectedRoleCodes, roleCode]));
-      return;
-    }
-    this.selectedRoleCodes = this.selectedRoleCodes.filter((code) => code !== roleCode);
-  }
-
   private loadUsers() {
     this.isLoading = true;
     this.authService.loadUsers().subscribe({
@@ -122,11 +118,22 @@ export class UsersComponent implements OnInit {
       return;
     }
     this.authService.loadRoles().subscribe({
-      next: (roles) => this.roles = roles
+      next: (roles) => {
+        this.roles = roles;
+        this.updateRoleOptions();
+      }
     });
     this.authService.loadAdminOverview().subscribe({
       next: (overview) => this.positions = overview.positions
     });
+  }
+
+  private updateRoleOptions() {
+    this.roleOptions = this.roles.map(role => ({
+      label: `${role.code} - ${role.name}`,
+      value: role.code,
+      checked: this.isRoleSelected(role.code)
+    }));
   }
 
   private emptyForm(): UserRequest {

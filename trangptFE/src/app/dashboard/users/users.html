@@ -7,60 +7,100 @@
 </div>
 
 @if (canCreate || canUpdate) {
-<form class="form-panel" (ngSubmit)="save()">
+<form class="form-panel" (ngSubmit)="save()" #userForm="ngForm">
   <div class="form-grid">
-    <label class="field">
-      <span>Username</span>
-      <input name="username" [(ngModel)]="form.username" required />
-    </label>
-    <label class="field">
-      <span>Email</span>
-      <input name="email" type="email" [(ngModel)]="form.email" />
-    </label>
-    <label class="field">
-      <span>Password</span>
-      <input name="password" type="password" [(ngModel)]="form.password" />
-    </label>
-    <label class="field">
-      <span>Full name</span>
-      <input name="fullName" [(ngModel)]="form.fullName" />
-    </label>
-    <label class="field">
-      <span>Position</span>
-      <select name="positionId" [(ngModel)]="form.positionId">
+    <ss-input
+      label="Username"
+      name="username"
+      placeholder="Nhập username"
+      [(ngModel)]="form.username"
+      [required]="true"
+      [maxlength]="60"
+      [showCount]="true"
+      countPosition="below"
+      [errorMessages]="{ required: 'Username không được để trống' }">
+    </ss-input>
+    
+    <ss-input
+      label="Email"
+      name="email"
+      type="text"
+      placeholder="Nhập email"
+      pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+      [required]="true"
+      [(ngModel)]="form.email"
+      [errorMessages]="{ required: 'Email không được để trống', pattern: 'Email không đúng định dạng' }">
+    </ss-input>
+    
+    <ss-input
+      label="Password"
+      name="password"
+      type="password"
+      placeholder="Nhập password"
+      [(ngModel)]="form.password"
+      [required]="true"
+      [minlength]="6"
+      [maxlength]="60"
+      [errorMessages]="{ required: ' ',minlength: 'Password tối thiểu 6 ký tự' }">
+    </ss-input>
+    
+    <ss-input
+      label="Full name"
+      name="fullName"
+      placeholder="Nhập tên đầy đủ"
+      [required]="true"
+      [maxlength]="60"
+      [showCount]="true"
+      countPosition="suffix"
+      [(ngModel)]="form.fullName"
+      [errorMessages]="{ required: 'Full name không được để trống' }">
+    </ss-input>
+    
+    <div class="field">
+      <label for="position-select">Position</label>
+      <select id="position-select" name="positionId" [(ngModel)]="form.positionId" class="form-control">
         <option [ngValue]="null">No position</option>
         @for (position of positions; track position.id) {
           <option [ngValue]="position.id">{{ position.name }}</option>
         }
       </select>
-    </label>
-    <label class="field">
-      <span>Status</span>
-      <select name="status" [(ngModel)]="form.status">
+    </div>
+    
+    <div class="field">
+      <label for="status-select">Status</label>
+      <select id="status-select" name="status" [(ngModel)]="form.status" class="form-control">
         <option value="ACTIVE">ACTIVE</option>
         <option value="INACTIVE">INACTIVE</option>
       </select>
-    </label>
+    </div>
+    
     <div class="field">
-      <span>Roles</span>
-      <div class="check-list">
-        @for (role of roles; track role.id) {
-          <label class="check-item">
-            <input
-              type="checkbox"
-              [checked]="isRoleSelected(role.code)"
-              (change)="toggleRole(role.code, $any($event.target).checked)"
-            />
-            <span>{{ role.code }} - {{ role.name }}</span>
-          </label>
-        }
-      </div>
+      <ss-checkbox
+        label="Roles"
+        [(ngModel)]="selectedRoleCodes"
+        [options]="roleOptions"
+        [required]="true"
+        name="roles"
+        variant="default"
+        [errorMessages]="{ required: 'phai chon'}"
+      ></ss-checkbox>
     </div>
   </div>
+  
   <div class="form-actions">
-    <button class="btn-primary" type="submit">{{ editingId ? 'Cap nhat' : 'Them moi' }}</button>
+    <ss-button
+      type="primary"
+      htmlType="submit"
+      [disabled]="isLoading">
+      {{ editingId ? 'Cap nhat' : 'Them moi' }}
+    </ss-button>
     @if (editingId) {
-      <button class="btn-secondary" type="button" (click)="cancelEdit()">Huy</button>
+      <ss-button
+        type="default"
+        htmlType="button"
+        (click)="cancelEdit()">
+        Hủy
+      </ss-button>
     }
   </div>
 </form>
