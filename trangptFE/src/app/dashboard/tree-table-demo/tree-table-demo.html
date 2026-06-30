@@ -1,0 +1,29 @@
+<div class="page-title">
+  <div>
+    <h2>Tree Table Demo</h2>
+    <p>Demo dữ liệu tổ chức từ response mẫu SSV-000.</p>
+  </div>
+  <span class="event-log">{{ eventLog }}</span>
+</div>
+
+<section class="response-summary">
+  <span>{{ response.message }}</span>
+  <span>{{ response.transactionTime }}</span>
+  <span>Trace: {{ response.traceId }}</span>
+</section>
+
+<section class="tree-demo-panel">
+  <ss-tree-table
+    [data]="rows"
+    [columns]="columns"
+    [config]="config" 
+    (expandedChange)="onExpandedChange($event)"
+    (checkedChange)="onCheckedChange($event)"
+    (pageChange)="onPageChange($event)"
+    (searchChange)="onSearchChange($event)"
+    (filterChange)="onFilterChange($event)"
+    (actionClick)="onActionClick($event)"
+    (toolbarAction)="onToolbarAction($event)"
+    (visibleColumnsChange)="onVisibleColumnsChange($event)"
+  ></ss-tree-table>
+</section>

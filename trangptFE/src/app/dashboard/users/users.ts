@@ -145,6 +145,6 @@ export class UsersComponent implements OnInit {
       positionId: null,
       status: 'ACTIVE',
       roleCodes: []
-    };
+    };  
   }
 }

@@ -7,6 +7,7 @@ import { PermissionsComponent } from './dashboard/permissions/permissions';
 import { PositionsComponent } from './dashboard/positions/positions';
 import { ProfileComponent } from './dashboard/profile/profile';
 import { RolesComponent } from './dashboard/roles/roles';
+import { TreeTableDemoComponent } from './dashboard/tree-table-demo/tree-table-demo';
 import { UsersComponent } from './dashboard/users/users';
 import { RegisterInfoComponent } from './register-info/register-info';
 
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: 'roles', component: RolesComponent },
       { path: 'permissions', component: PermissionsComponent },
       { path: 'positions', component: PositionsComponent },
+      { path: 'tree-table-demo', component: TreeTableDemoComponent },
       { path: '', redirectTo: 'overview', pathMatch: 'full' }
     ]
   },

@@ -1,4 +1,4 @@
-﻿<section class="info-page">
+<section class="info-page">
   <main class="info-shell">
     <a class="back-link" routerLink="/dashboard/overview">← Quay lại dashboard</a>
 
@@ -34,7 +34,7 @@
             <h3>Thông tin cá nhân</h3>
             <p>Validate required, pattern, clear, count và lỗi nhập liệu.</p>
           </div>
-          <ss-button type="default" htmlType="button" size="small" (click)="clearPersonalLayer()">Clear</ss-button>
+          <ss-button type="default" htmlType="button" size="small" (onClick)="clearPersonalLayer()">Clear</ss-button>
         </div>
 
         <div class="field-grid">
@@ -42,25 +42,29 @@
             label="Họ và tên"
             placeholder="Nhập họ và tên"
             formControlName="fullName"
+            tooltip="Nhập họ và tên đầy đủ"
             [required]="true"
-            [noWhitespace]="true"
+            [noWhitespace]="false"
+            [trim]="false"
             [allowClear]="true"
-            [maxlength]="60"
+            [maxlength]="10"
             [showCount]="true"
             countPosition="below"
-            hint="Không để trống hoặc chỉ nhập khoảng trắng"
+            hint="Không được để trống"
           />
 
           <ss-input
             label="Mã nhân viên"
             placeholder="Ví dụ: NV001"
-            formControlName="employeeCode"
-            [required]="true"
+            formControlName="employeeCode"  
+            tooltip="Nhập mã nhân viên"
+            [noWhitespace]="true"
             [allowClear]="true"
             [maxlength]="12"
             [showCount]="true"
             prefix="ID"
             countPosition="below"
+            [errorMessages]="{ whitespace: 'khong doc de khoang trang'}"
           />
 
           <ss-input
@@ -92,7 +96,7 @@
             <h3>Thời gian</h3>
             <p>Mỗi ngày dùng một datepicker riêng để test validate ngày bắt đầu và ngày kết thúc rõ ràng.</p>
           </div>
-          <ss-button type="default" htmlType="button" size="small" (click)="clearTimeLayer()">Clear</ss-button>
+          <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearTimeLayer()">Clear</ss-button>
         </div>
 
         <div class="field-grid date-grid">
@@ -155,7 +159,7 @@
             <h3>Liên hệ và xác nhận</h3>
             <p>Test checkbox đơn, checkbox nhóm, required và requiredTrue.</p>
           </div>
-          <ss-button type="default" htmlType="button" size="small" (click)="clearConfirmLayer()">Clear</ss-button>
+          <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearConfirmLayer()">Clear</ss-button>
         </div>
 
         <div class="field-block">
@@ -196,7 +200,7 @@
           <span>{{ registerForm.valid ? 'Bạn có thể gửi hồ sơ.' : 'Vui lòng kiểm tra các trường bắt buộc.' }}</span>
         </div>
         <div class="action-buttons">
-          <ss-button type="default" htmlType="button" (click)="onReset()">Đặt lại</ss-button>
+          <ss-button type="default" htmlType="button" (buttonClick)="onReset()">Đặt lại</ss-button>
           <ss-button htmlType="submit" [loading]="isSubmitting" loadingText="Đang gửi">Gửi thông tin</ss-button>
         </div>
       </footer>
@@ -209,14 +213,18 @@
           <h2>ss-button</h2>
           <p>Kiểm tra type, variant, color, shape, block, disabled và loading.</p>
         </div>
-        <ss-button type="default" htmlType="button" size="small" (click)="clearButtonLayer()">Clear</ss-button>
+        <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearButtonLayer()">Clear</ss-button>
       </header>
 
       <div class="demo-layer">
         <h3>Type mặc định</h3>
         <div class="button-row">
           <ss-button type="primary">Primary</ss-button>
-          <ss-button type="default">Default</ss-button>
+          <ss-button 
+            type="default" 
+            [split]="true">Default
+            htmlType
+          </ss-button>
           <ss-button type="dashed">Dashed</ss-button>
           <ss-button type="text">Text</ss-button>
           <ss-button type="link">Link</ss-button>
@@ -241,7 +249,7 @@
           <ss-button shape="round">Bo tròn</ss-button>
           <ss-button shape="circle" tooltip="Nút tròn">OK</ss-button>
           <ss-button [disabled]="true">Disabled</ss-button>
-          <ss-button [loading]="buttonLoading" loadingText="Đang xử lý" (click)="startLoadingDemo()">Test loading</ss-button>
+          <ss-button [loading]="buttonLoading" loadingText="Đang xử lý" (buttonClick)="startLoadingDemo()">Test loading</ss-button>
         </div>
         <ss-button class="block-demo" [block]="true">Nút toàn chiều ngang</ss-button>
       </div>
@@ -254,7 +262,7 @@
           <h2>ss-input</h2>
           <p>Kiểm tra label, hint, layout, count, prefix/suffix, pattern, textarea, readonly, disabled và ẩn/hiện lỗi.</p>
         </div>
-        <ss-button type="default" htmlType="button" size="small" (click)="clearInputLayer()">Clear</ss-button>
+        <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearInputLayer()">Clear</ss-button>
       </header>
 
       <div class="demo-grid">
@@ -277,7 +285,7 @@
           placeholder="Nhập mật khẩu"
           [(ngModel)]="inputPassword"
           [ngModelOptions]="{ standalone: true }"
-          [required]="true"
+          [required]="false"
           [minlength]="6"
           [allowClear]="true"
         />
@@ -285,6 +293,8 @@
         <ss-input
           label="Mã nội bộ"
           placeholder="ABC123"
+          layout="vertical"
+          [required]="true"
           [(ngModel)]="inputHiddenError"
           [ngModelOptions]="{ standalone: true }"
           [noWhitespace]="true"
@@ -294,8 +304,7 @@
 
         <ss-input
           label="Layout ngang"
-          layout="horizontal"
-          labelWidth="130px"
+          layout="inline"
           placeholder="Kiểm tra labelWidth"
           [(ngModel)]="inputHorizontal"
           [ngModelOptions]="{ standalone: true }"
@@ -304,8 +313,10 @@
 
         <ss-input
           label="Inline"
-          layout="inline"
+          layout="horizontal"
+          labelWidth="120px"
           placeholder="Nhập nhanh"
+          requiredState="optional"
           [(ngModel)]="inputInline"
           [ngModelOptions]="{ standalone: true }"
           prefix="ID"
@@ -315,6 +326,7 @@
         />
 
         <ss-input
+          id="readonly"
           label="Chỉ đọc"
           [(ngModel)]="inputReadonly"
           [ngModelOptions]="{ standalone: true }"
@@ -331,6 +343,7 @@
         <ss-input
           label="Ẩn label và lỗi"
           placeholder="Chỉ hiển thị ô nhập"
+          [readonly]="true"
           [(ngModel)]="inputText"
           [ngModelOptions]="{ standalone: true }"
           [showLabel]="false"
@@ -340,16 +353,81 @@
       </div>
 
       <ss-input
+        name="textarea"
         label="Textarea"
         type="textarea"
+        tooltip="nhap textarea"
+        tooltipPosition="bottom"
         placeholder="Nhập mô tả dài"
         [(ngModel)]="inputTextarea"
         [ngModelOptions]="{ standalone: true }"
         [rows]="4"
         [maxlength]="140"
         [showCount]="true"
-        countPosition="below"
+        countPosition="suffix"
       />
+      <ss-button
+      type="dashed"
+      color="danger"
+      (buttonClick)="focusInputById('textarea')"
+      >
+        kiem tra name
+      </ss-button>
+
+      <ss-input
+        id="id-test"
+        label="Test tooltip"
+        type="text"
+        placeholder="Nhập mô tả dài"
+        tooltip="Nội dung giải thích cho trường này"
+        tooltipPosition="right"
+        
+      />
+
+      <ss-input
+        label="test variant"
+        variant="icon"
+        prefixIcon="search"
+        placeholder="tim kiem"
+        state="error"
+      />
+
+      <ss-input
+        label="test variant"
+        variant="interactive-icon"
+        prefixIcon="search"
+        placeholder="tim kiem"
+        [(ngModel)]="keyword"
+        (prefixIconClick)="search()"
+        hint="test tim kiếm"
+      />
+
+      <ss-input
+        type="password"
+        prefix="mat khau"
+        layout="inline"
+        state="error"
+        size="small"
+        [maxlength]="10"
+        [(ngModel)]="password"
+        [inherited]="passwordInherited ? 'true' : 'un-inherited'"
+        tooltip="test ke thua tu cau hinh"     
+        [showCount]="true"
+        [countPosition]="'below'"
+        helpText=" nhập cả chữ và số"
+      />
+
+      <ss-button
+        type="default"
+        htmlType="button"
+        (buttonClick)="focusInputById('id-test')"
+      >
+        Focus input bằng ID
+      </ss-button>
+      <ss-button
+        type="warning"
+        (buttonClick)="focusInputById('readonly')"
+      >tim readonly</ss-button>
     </section>
 
     <section class="demo-card">
@@ -359,15 +437,17 @@
           <h2>ss-checkbox</h2>
           <p>Kiểm tra checkbox đơn, indeterminate, disabled, nhóm option và required.</p>
         </div>
-        <ss-button type="default" htmlType="button" size="small" (click)="clearCheckboxLayer()">Clear</ss-button>
+        <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearCheckboxLayer()">Clear</ss-button>
       </header>
 
       <div class="checkbox-demo-grid">
         <div class="demo-box">
           <h3>Checkbox đơn</h3>
           <ss-checkbox label="Tôi đồng ý điều khoản" 
-          [(ngModel)]="checkboxSingle" 
-          [ngModelOptions]="{ standalone: true }" 
+          body="Tôi đã đọc và chấp nhận điều khoản sử dụng."
+          variant="choice"
+          [(ngModel)]="checkboxSingle"
+          [ngModelOptions]="{ standalone: true }"
           [requiredTrue]="true" />
           <pre>single: {{ checkboxSingle | json }}</pre>
         </div>
@@ -399,7 +479,7 @@
           <h2>ss-datepicker</h2>
           <p>Kiểm tra giao diện Figma mới: field 48px, panel 280px, ô ngày 40px, hover brand, selected gray, current date có viền và đầy đủ API.</p>
         </div>
-        <ss-button type="default" htmlType="button" size="small" (click)="clearDatepickerLayer()">Clear</ss-button>
+        <ss-button type="default" htmlType="button" size="small" (buttonClick)="clearDatepickerLayer()">Clear</ss-button>
       </header>
 
       <div class="demo-grid datepicker-demo-grid">
@@ -413,11 +493,50 @@
         />
 
         <ss-datepicker
+          label="tuần trong năm"
+          placeholder="chọn tuần"
+          type="week"
+          format="yyyy-ww"
+          [(ngModel)]="dateWeek"
+          [ngModelOptions]="{ standalone: true }"
+          [allowClear]="true"
+          [required]="true"
+          [errorMessages]="{ required: 'Vui lòng chọn tuần' }"
+        />
+
+        <ss-datepicker 
+          label="mindate"
+          type="date"
+          [readonly]="true"
+          []
+        />
+        <ss-datepicker 
+          label="maxdate"
+          type="date"
+          [readonly]="true"
+        />
+        
+        <!--test rangedate với range= true, giá trị truyền vào mảng và được kiểm tra bằng hàm validateRange()-->
+        <ss-datepicker 
+          label="test rangedate"
+          [range]="true"
+          [(ngModel)]="testworkrange"
+          [ngModelOptions]="{ standalone: true }"
+          [required]="true"
+          [allowClear]="true"
+          [errorMessages]="{
+             required: 'hay chon du 2 ngay' ,
+             startAfterEnd: 'ngay bat dau khong duoc lon hon ngay ket thuc'}"
+        />
+
+
+        <ss-datepicker
           label="Không chọn tương lai"
           placeholder="Chỉ chọn hôm nay hoặc quá khứ"
-          [(ngModel)]="dateIso"
+          [(ngModel)]="dateBasic"
           [ngModelOptions]="{ standalone: true }"
           valueFormat="iso"
+          [maxDate]="1782298310000"
           [notFuture]="true"
         />
 
@@ -487,12 +606,13 @@
           [ngModelOptions]="{ standalone: true }"
           [disabled]="true"
         />
-
+      <!--test rangedate với 2 ss-datepicher riêng , giá trị được truyền vào [minDate][maxDate] kiểm tra bằng validateSingle-->
         <ss-datepicker
           label="Ngày đi"
           placeholder="Chọn ngày đi"
           [(ngModel)]="dateRangeStart"
           [ngModelOptions]="{ standalone: true }"
+          [maxDate]="dateRangeEnd || undefined"
           [required]="true"
         />
 
@@ -501,7 +621,10 @@
           placeholder="Chọn ngày về"
           [(ngModel)]="dateRangeEnd"
           [ngModelOptions]="{ standalone: true }"
+          [minDate]="dateRangeStart || undefined"
           [required]="true"
+          [readonly]="true"
+        
         />
       </div>
 
@@ -533,3 +656,4 @@
     </details>
   </main>
 </section>
+

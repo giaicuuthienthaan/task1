@@ -54,13 +54,18 @@ export class RegisterInfoComponent {
   inputReadonly = 'Chỉ đọc';
   inputDisabled = 'Đã vô hiệu';
   inputHiddenError = '   ';
+  keyword = '';
+
+  password = 'MatKhauMacDinh';
+  passwordInherited = true;
 
   checkboxSingle = false;
-  checkboxIndeterminate = true;
+  checkboxIndeterminate = false;
   checkboxDisabled = true;
-  checkboxGroupValues: string[] = ['email'];
+  checkboxGroupValues: string[]=[];
 
   dateBasic: Date | null = null;
+  dateWeek: Date | null = null;
   dateMonth: Date | null = null;
   dateWithTime: Date | null = null;
   dateNoClear: Date | null = new Date();
@@ -72,10 +77,12 @@ export class RegisterInfoComponent {
   dateRangeEnd: Date | null = null;
   dateDisabled: Date | null = new Date();
 
+  testworkrange: [Date| null, Date| null] | null= null;
+
   private readonly fb = inject(FormBuilder);
 
   readonly registerForm = this.fb.group({
-    fullName: ['', [Validators.required]],
+    fullName: [''],
     employeeCode: ['', [Validators.required]],
     email: ['', [Validators.required]],
     phone: ['', [Validators.required]],
@@ -102,32 +109,28 @@ export class RegisterInfoComponent {
   }
 
   clearPersonalLayer(): void {
-    this.registerForm.patchValue({
+    this.resetFormControls({
       fullName: '',
       employeeCode: '',
       email: '',
       phone: ''
     });
-    this.markControlsPristine(['fullName', 'employeeCode', 'email', 'phone']);
   }
 
   clearTimeLayer(): void {
-    this.registerForm.patchValue({
+    this.resetFormControls({
       birthday: null,
       workStartDate: null,
       workEndDate: null
     });
-    this.markControlsPristine(['birthday', 'workStartDate', 'workEndDate']);
-    this.registerForm.updateValueAndValidity();
   }
 
   clearConfirmLayer(): void {
-    this.registerForm.patchValue({
+    this.resetFormControls({
       contactMethods: [],
       note: '',
       acceptPolicy: false
     });
-    this.markControlsPristine(['contactMethods', 'note', 'acceptPolicy']);
   }
 
   clearButtonLayer(): void {
@@ -149,8 +152,28 @@ export class RegisterInfoComponent {
     this.checkboxGroupValues = [];
   }
 
+  /**
+   * Tìm ss-input bằng ID, sau đó focus thẻ input/textarea thật nằm bên trong.
+   * ID tĩnh trên Angular component có thể đồng thời xuất hiện ở host <ss-input>,
+   * vì vậy không thể gọi focus trực tiếp trên kết quả getElementById().
+   */
+  focusInputById(id: string): void {
+    const element = document.getElementById(id);
+    const input =
+      element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement
+        ? element
+        : element?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+
+    input?.focus();
+  }
+
+  search(): void {
+  console.log('Tìm kiếm:', this.keyword);
+}
+
   clearDatepickerLayer(): void {
     this.dateBasic = null;
+    this.dateWeek = null;
     this.dateMonth = null;
     this.dateWithTime = null;
     this.dateNoClear = null;
@@ -193,12 +216,14 @@ export class RegisterInfoComponent {
     this.submittedValue = null;
   }
 
-  private markControlsPristine(controlNames: string[]): void {
-    controlNames.forEach(controlName => {
+  private resetFormControls(values: Partial<Record<keyof typeof this.registerForm.controls, unknown>>): void {
+    Object.entries(values).forEach(([controlName, value]) => {
       const control = this.registerForm.get(controlName);
+      control?.reset(value);
       control?.markAsPristine();
       control?.markAsUntouched();
     });
+    this.registerForm.updateValueAndValidity();
   }
 
   private workDateOrderValidator(control: AbstractControl): ValidationErrors | null {
@@ -215,5 +240,9 @@ export class RegisterInfoComponent {
     endDate.setHours(0, 0, 0, 0);
 
     return startDate.getTime() > endDate.getTime() ? { workDateOrder: true } : null;
+  }
+
+  get dateworkrange(): [Date | null, Date | null] | null {
+    return [this.dateRangeStart, this.dateRangeEnd];
   }
 }

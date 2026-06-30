@@ -1,0 +1,144 @@
+:host {
+  --tree-table-bg: #ffffff;
+  --tree-table-text: #0f172a;
+  --tree-table-muted: #64748b;
+  --tree-table-border: #e2e8f0;
+  --tree-table-border-width: 1px;
+  --tree-table-radius: 8px;
+  --tree-table-row-height: 44px;
+  --tree-table-indent: 24px;
+  --tree-table-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --tree-table-font-size: 13px;
+  --tree-table-font-weight: 500;
+  --tree-table-line-height: 1.4;
+  --tree-table-letter-spacing: 0;
+  --tree-table-header-bg: #f8fafc;
+  --tree-table-header-text: #475569;
+  --tree-table-header-padding: 0 14px;
+  --tree-table-cell-padding: 0 14px;
+  --tree-table-row-hover: #f1f5f9;
+  --tree-table-striped-bg: #f8fafc;
+  --tree-table-entry-point-bg: #eff6ff;
+  --tree-table-active-bg: #e0f2fe;
+  --tree-table-guide: #cbd5e1;
+  --tree-table-guide-offset: 12px;
+  --tree-table-guide-width: 1px;
+  --tree-table-item-padding: 0 10px;
+  --tree-table-left-gap: 8px;
+  --tree-table-right-gap: 8px;
+  --tree-table-element-gap: 6px;
+  --tree-table-control-size: 18px;
+  --tree-table-chevron-size: 8px;
+  --tree-table-chevron-stroke: 2px;
+  --tree-table-chevron-collapsed-rotation: -45deg;
+  --tree-table-chevron-expanded-rotation: 45deg;
+  --tree-table-chevron-expanded-offset: -1px;
+  --tree-table-chevron-transition: transform 0.18s ease;
+  --tree-table-brand: #1677ff;
+  --tree-table-brand-soft: #e6f4ff;
+  --tree-table-folder-radius: 3px;
+  --tree-table-folder-left: 2px;
+  --tree-table-folder-closed-top: 5px;
+  --tree-table-folder-closed-height: 10px;
+  --tree-table-folder-front-width: 15px;
+  --tree-table-folder-back-top: 4px;
+  --tree-table-folder-back-width: 13px;
+  --tree-table-folder-back-height: 7px;
+  --tree-table-folder-front-top: 7px;
+  --tree-table-folder-front-left: 2px;
+  --tree-table-folder-open-height: 8px;
+  --tree-table-leaf-offset: 4px;
+  --tree-table-leaf-size: 10px;
+  --tree-table-leaf-dot-offset: 7px;
+  --tree-table-leaf-dot-size: 4px;
+  --tree-table-icon-stroke: 1px;
+  --tree-table-label-height: 28px;
+  --tree-table-label-padding: 0 8px;
+  --tree-table-label-radius: 6px;
+  --tree-table-status-size: 8px;
+  --tree-table-active-status: #22c55e;
+  --tree-table-inactive-status: #f59e0b;
+  --tree-table-menu-size: 28px;
+  --tree-table-menu-dot-size: 4px;
+  --tree-table-menu-dot-gap: 3px;
+  --tree-table-actions-width: 96px;
+  --tree-table-empty-padding: 28px;
+  --tree-table-disabled-opacity: 0.55;
+  --tree-table-focus-shadow: inset 0 0 0 2px #93c5fd;
+  --checkbox-size: 16px;
+  --checkbox-radius: 4px;
+  --checkbox-bg: #ffffff;
+  --checkbox-border: #cbd5e1;
+  --checkbox-border-hover: #1677ff;
+  --checkbox-checked-bg: #1677ff;
+  --checkbox-checked-border: #1677ff;
+  --checkbox-check-color: #ffffff;
+  --checkbox-indeterminate-width: 8px;
+  --checkbox-indeterminate-height: 2px;
+  --checkbox-indeterminate-color: #ffffff;
+}
+
+.page-title {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title h2 {
+  color: #0f172a;
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+.page-title p,
+.event-log {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0;
+}
+
+.event-log {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.tree-demo-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.response-summary {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.response-summary span {
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+
+@media (max-width: 760px) {
+  .page-title {
+    display: block;
+  }
+
+  .event-log {
+    display: inline-block;
+    margin-top: 12px;
+  }
+}
