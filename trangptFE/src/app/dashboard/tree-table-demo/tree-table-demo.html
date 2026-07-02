@@ -1,22 +1,26 @@
 <div class="page-title">
   <div>
     <h2>Tree Table Demo</h2>
-    <p>Demo dữ liệu tổ chức từ response mẫu SSV-000.</p>
+    <p>Demo danh sach don vi goc tu API /api/organizations/parents.</p>
   </div>
   <span class="event-log">{{ eventLog }}</span>
 </div>
 
 <section class="response-summary">
-  <span>{{ response.message }}</span>
-  <span>{{ response.transactionTime }}</span>
-  <span>Trace: {{ response.traceId }}</span>
+  <span *ngIf="responseInfo">{{ responseInfo.message }}</span>
+  <span *ngIf="responseInfo">{{ responseInfo.transactionTime }}</span>
+  <span *ngIf="responseInfo">Trace: {{ responseInfo.traceId }}</span>
+  <span *ngIf="!responseInfo && !errorMessage">Dang ket noi backend...</span>
+  <span *ngIf="errorMessage">{{ errorMessage }}</span>
+  <button type="button" (click)="loadRootOrganizations()">Tai lai</button>
 </section>
 
 <section class="tree-demo-panel">
   <ss-tree-table
     [data]="rows"
     [columns]="columns"
-    [config]="config" 
+    [config]="config"
+    (nodeExpand)="onNodeExpand($event)"
     (expandedChange)="onExpandedChange($event)"
     (checkedChange)="onCheckedChange($event)"
     (pageChange)="onPageChange($event)"
