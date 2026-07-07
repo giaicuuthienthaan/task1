@@ -22,6 +22,7 @@ import {
   SsTreeTablePageChangeEvent,
   SsTreeTableSearchChangeEvent,
   SsTreeTableToolbarActionEvent,
+  SsTreeTableSortOrder,
   SsTreeTableVisibleColumnsChangeEvent,
 } from '@platform/ui-kit';
 import {
@@ -29,6 +30,7 @@ import {
   OrganizationCreatePayload,
   OrganizationApiNode,
   OrganizationDetail,
+  OrganizationSearchPayload,
   OrganizationTreeDemoService,
 } from '../../service/organization-tree-demo.service';
 
@@ -50,21 +52,19 @@ import {
 export class TreeTableDemoComponent implements OnInit {
   @ViewChild('organizationFilterTemplate', { static: true })
   private organizationFilterTemplate?: TemplateRef<unknown>;
+  @ViewChild('organizationSortTemplate', { static: true })
+  private organizationSortTemplate?: TemplateRef<unknown>;
 
-  // Inject service riêng để gọi API organization.
   private readonly organizationService = inject(OrganizationTreeDemoService);
 
-  // Log nhỏ hiển thị trên UI để biết thao tác gần nhất của user/table.
   eventLog = 'Chua co thao tac';
-  // State loading riêng của page demo. Config.loading bên dưới mới là loading truyền vào ss-tree-table.
   loading = false;
-  // Message lỗi hiển thị trên UI khi API /parents load thất bại.
   errorMessage = '';
-  // Lưu meta response backend để demo hiển thị message, transactionTime, traceId.
+
   responseInfo: Pick<ApiResponse<unknown>, 'message' | 'transactionTime' | 'traceId'> | null = null;
-  // rows là data truyền vào [data] của ss-tree-table.
   // Demo đang dùng flat data theo chuẩn: key, parentKey, expandable + các field nghiệp vụ.
   rows: OrganizationApiNode[] = [];
+  currentSearchKeyword = '';
   isCreateDialogOpen = false;
   creatingOrganization = false;
   createErrorMessage = '';
@@ -133,6 +133,10 @@ export class TreeTableDemoComponent implements OnInit {
         placeholder: 'Tim phong ban, ma don vi...',
         // Có nút clear search.
         clearable: true,
+        // Search dùng server: component chỉ emit searchChange, demo gọi API /search-tree.
+        mode: 'server',
+        // Chỉ gọi API khi bấm icon search hoặc nhấn Enter, tránh gọi API mỗi ký tự.
+        trigger: 'submit',
       },
       // Bật các nút thao tác chung cạnh Filter, ví dụ Thêm mới.
       primary: true,
@@ -239,6 +243,7 @@ export class TreeTableDemoComponent implements OnInit {
     this.config = {
       ...this.config,
       filterTemplate: this.organizationFilterTemplate as SsTreeTableConfig<OrganizationApiNode>['filterTemplate'],
+      sortTemplate: this.organizationSortTemplate as SsTreeTableConfig<OrganizationApiNode>['sortTemplate'],
     };
     // Khi vào màn hình, chỉ load danh sách root/parent trước.
     // Children sẽ load lazy khi user click tam giác expand.
@@ -246,6 +251,7 @@ export class TreeTableDemoComponent implements OnInit {
   }
 
   loadRootOrganizations(page = 1, size = this.config.pagination?.pageSize ?? 6): void {
+    this.currentSearchKeyword = '';
     // Reset state UI trước khi gọi API root.
     this.loading = true;
     this.errorMessage = '';
@@ -292,6 +298,57 @@ export class TreeTableDemoComponent implements OnInit {
 
     // Bật loading của ss-tree-table ngay sau khi subscribe.
     // Dòng này đặt sau subscribe vẫn chạy đồng bộ trước khi response async trả về.
+    this.config = { ...this.config, loading: true };
+  }
+
+  searchOrganizations(keyword: string, page = 1, size = this.config.pagination?.pageSize ?? 5): void {
+    const trimmedKeyword = keyword.trim();
+    if (!trimmedKeyword) {
+      this.loadRootOrganizations(1, size);
+      return;
+    }
+
+    this.currentSearchKeyword = trimmedKeyword;
+    this.loading = true;
+    this.errorMessage = '';
+    this.eventLog = `Dang tim kiem: ${trimmedKeyword}`;
+
+    const payload: OrganizationSearchPayload = {
+      page,
+      size,
+      keyword: trimmedKeyword,
+    };
+
+    this.organizationService.searchOrganizations(payload).subscribe({
+      next: (result) => {
+        this.responseInfo = result.responseInfo;
+        this.rows = result.rows;
+        this.loadedChildKeys.clear();
+        this.loadingChildKeys.clear();
+        this.config = {
+          ...this.config,
+          loading: false,
+          pagination: {
+            ...this.config.pagination,
+            pageIndex: page,
+            pageSize: size,
+            total: result.total,
+          },
+        };
+        this.eventLog = `Tim thay ${result.total} don vi voi tu khoa "${trimmedKeyword}"`;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Cannot search organizations:', error);
+        this.rows = [];
+        this.responseInfo = null;
+        this.errorMessage = 'Khong the tim kiem don vi tu backend.';
+        this.eventLog = 'Tim kiem that bai';
+        this.config = { ...this.config, loading: false };
+        this.loading = false;
+      },
+    });
+
     this.config = { ...this.config, loading: true };
   }
 
@@ -445,12 +502,16 @@ export class TreeTableDemoComponent implements OnInit {
 
   onPageChange(event: SsTreeTablePageChangeEvent) {
     this.eventLog = `Trang ${event.pageIndex}, page size ${event.pageSize}`;
+    if (this.currentSearchKeyword) {
+      this.searchOrganizations(this.currentSearchKeyword, event.pageIndex, event.pageSize);
+      return;
+    }
     this.loadRootOrganizations(event.pageIndex, event.pageSize);
   }
 
   onSearchChange(event: SsTreeTableSearchChangeEvent) {
-    // Event search thay đổi. Demo để component xử lý client-side và chỉ hiển thị log.
     this.eventLog = `Search: ${event.term || '(rong)'}`;
+    this.searchOrganizations(event.term, 1, this.config.pagination?.pageSize ?? 5);
   }
 
   onFilterChange(event: SsTreeTableFilterChangeEvent) {
@@ -473,6 +534,29 @@ export class TreeTableDemoComponent implements OnInit {
     filterModel['apiStatus'] = checked
       ? [...selectedValues, value]
       : selectedValues.filter((item) => String(item) !== value);
+  }
+
+  sortDraftOrder(
+    sortModel: Array<{ key: string; value: SsTreeTableSortOrder }>,
+    columnKey: string,
+  ): SsTreeTableSortOrder {
+    return sortModel.find((item) => item.key === columnKey)?.value ?? null;
+  }
+
+  toggleSortOption(
+    sortModel: Array<{ key: string; value: SsTreeTableSortOrder }>,
+    columnKey: string,
+  ): void {
+    const currentOrder = this.sortDraftOrder(sortModel, columnKey);
+    const nextOrder = currentOrder === 'ascend' ? 'descend' : currentOrder === 'descend' ? null : 'ascend';
+    sortModel.splice(0, sortModel.length);
+    if (nextOrder) sortModel.push({ key: columnKey, value: nextOrder });
+  }
+
+  sortOrderLabel(order: SsTreeTableSortOrder): string {
+    if (order === 'ascend') return 'Tang dan';
+    if (order === 'descend') return 'Giam dan';
+    return 'Chua chon';
   }
 
   onActionClick(event: SsTreeTableActionClickEvent<OrganizationApiNode>) {

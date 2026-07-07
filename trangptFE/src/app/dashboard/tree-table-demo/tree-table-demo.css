@@ -156,6 +156,21 @@
   gap: 8px;
 }
 
+.tree-sort-form {
+  display: grid;
+  gap: 8px;
+}
+
+.tree-sort-option {
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 10px;
+}
+
 .create-form {
   display: grid;
   gap: 14px;

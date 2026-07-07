@@ -3,17 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 export interface OrganizationApiNode {
-  // key là định danh chuẩn mà ss-tree-table ưu tiên đọc. Demo này dùng code vì API children lấy theo parentCode.
   key?: string;
-  // parentKey lưu key của cha. Root sẽ có parentKey = null, con sẽ có parentKey = parentCode.
   parentKey?: string | null;
-  // id là định danh database của bản ghi, vẫn giữ lại để hiển thị cột ID.
   id: number;
-  // expandable cho biết dòng có hiển thị nút tam giác expand hay không.
   expandable?: boolean;
-  // expanded cho biết node có mở sẵn hay không khi render lần đầu.
   expanded?: boolean;
-  // Các field nghiệp vụ bên backend trả về, dùng để hiển thị theo columns.
   code: string;
   name: string;
   typeCode?: string;
@@ -21,12 +15,10 @@ export interface OrganizationApiNode {
   parentCode?: string | null;
   parentName?: string | null;
   status: 'ACTIVE' | 'INACTIVE' | string;
-  // Khi dùng flat data + parentKey, children để rỗng và tree table sẽ tự dựng cây bằng key/parentKey.
   children?: OrganizationApiNode[];
 }
 
 export interface ApiResponse<T> {
-  // Wrapper response chung của backend: thông tin meta + data thật sự.
   transactionTime: string;
   code: string;
   message: string;
@@ -35,7 +27,6 @@ export interface ApiResponse<T> {
 }
 
 export interface PageResponse<T> {
-  // PageResponse của backend cho API phân trang: content là danh sách record của page hiện tại.
   content: T[];
   page: number;
   size: number;
@@ -45,12 +36,20 @@ export interface PageResponse<T> {
 }
 
 export interface OrganizationRootResult {
-  // responseInfo dùng để demo hiển thị message/traceId ở UI.
   responseInfo: Pick<ApiResponse<unknown>, 'message' | 'transactionTime' | 'traceId'>;
-  // rows là dữ liệu đã chuẩn hóa, sẵn sàng truyền vào [data] của ss-tree-table.
   rows: OrganizationApiNode[];
-  // total dùng cho pagination của tree table.
   total: number;
+}
+
+export interface OrganizationSearchPayload {
+  page: number;
+  size: number;
+  keyword?: string;
+  typeCode?: string;
+  status?: string;
+  parentCode?: string;
+  sort?: string;
+  sortDirection?: string;
 }
 
 export interface OrganizationCreatePayload {
@@ -115,8 +114,31 @@ export class OrganizationTreeDemoService {
     // Gọi API lấy con trực tiếp của node cha. parentCode cũng chính là key của node cha trong demo này.
     return this.http
       .get<ApiResponse<OrganizationApiNode[]>>(`${ORGANIZATION_API_URL}/children/${encodeURIComponent(parentCode)}`)
-      //pip xử lý dữ liệu trả về từ Observable
       .pipe(map((response) => (response.data ?? []).map((item) => this.toTreeRow(item, parentCode))));
+  }
+
+  searchOrganizations(payload: OrganizationSearchPayload): Observable<OrganizationRootResult> {
+    const backendPayload: OrganizationSearchPayload = {
+      ...payload,
+      page: Math.max(payload.page - 1, 0),
+    };
+
+    return this.http
+      .post<ApiResponse<PageResponse<OrganizationApiNode>>>(`${ORGANIZATION_API_URL}/search-tree`, backendPayload)
+      .pipe(
+        map((response) => {
+          const pageData = response.data;
+          return {
+            responseInfo: {
+              message: response.message,
+              transactionTime: response.transactionTime,
+              traceId: response.traceId,
+            },
+            rows: (pageData?.content ?? []).map((item) => this.toTreeRow(item, item.parentCode ?? null)),
+            total: pageData?.totalElements ?? 0,
+          };
+        }),
+      );
   }
 
   createOrganization(payload: OrganizationCreatePayload): Observable<OrganizationApiNode> {

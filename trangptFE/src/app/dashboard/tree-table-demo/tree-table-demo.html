@@ -16,6 +16,22 @@
 </section>
 
 <section class="tree-demo-panel">
+  
+  <ss-tree-table
+    [data]="rows"
+    [columns]="columns"
+    [config]="config"
+    (nodeExpand)="onNodeExpand($event)"
+    (expandedChange)="onExpandedChange($event)"
+    (checkedChange)="onCheckedChange($event)"
+    (pageChange)="onPageChange($event)"
+    (searchChange)="onSearchChange($event)"
+    (filterChange)="onFilterChange($event)"
+    (actionClick)="onActionClick($event)"
+    (toolbarAction)="onToolbarAction($event)"
+    (visibleColumnsChange)="onVisibleColumnsChange($event)"
+  ></ss-tree-table>
+
   <ng-template #organizationFilterTemplate let-filterModel="filterModel">
     <div class="tree-filter-form">
       <ss-input
@@ -49,20 +65,20 @@
     </div>
   </ng-template>
 
-  <ss-tree-table
-    [data]="rows"
-    [columns]="columns"
-    [config]="config"
-    (nodeExpand)="onNodeExpand($event)"
-    (expandedChange)="onExpandedChange($event)"
-    (checkedChange)="onCheckedChange($event)"
-    (pageChange)="onPageChange($event)"
-    (searchChange)="onSearchChange($event)"
-    (filterChange)="onFilterChange($event)"
-    (actionClick)="onActionClick($event)"
-    (toolbarAction)="onToolbarAction($event)"
-    (visibleColumnsChange)="onVisibleColumnsChange($event)"
-  ></ss-tree-table>
+  <ng-template #organizationSortTemplate let-sortModel="sortModel" let-columns="columns">
+    <div class="tree-sort-form">
+      <button
+        type="button"
+        class="tree-sort-option"
+        *ngFor="let column of columns"
+        (click)="toggleSortOption(sortModel, column.key)"
+      >
+        <span>{{ column.title }}</span>
+        <span>{{ sortOrderLabel(sortDraftOrder(sortModel, column.key)) }}</span>
+      </button>
+    </div>
+  </ng-template>
+  
 </section>
 
 <ss-dialog
