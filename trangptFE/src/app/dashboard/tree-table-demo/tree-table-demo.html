@@ -12,10 +12,43 @@
   <span *ngIf="responseInfo">Trace: {{ responseInfo.traceId }}</span>
   <span *ngIf="!responseInfo && !errorMessage">Dang ket noi backend...</span>
   <span *ngIf="errorMessage">{{ errorMessage }}</span>
-  <button type="button" (click)="loadRootOrganizations()">Tai lai</button>
+  <ss-button htmlType="button" (onClick)="loadRootOrganizations()">Tai lai</ss-button>
 </section>
 
 <section class="tree-demo-panel">
+  <ng-template #organizationFilterTemplate let-filterModel="filterModel">
+    <div class="tree-filter-form">
+      <ss-input
+        label="Ten don vi"
+        name="filterName"
+        placeholder="Nhap ten don vi"
+        [ngModelOptions]="{ standalone: true }"
+        [(ngModel)]="filterModel['name']"
+      ></ss-input>
+
+      <ss-input
+        label="Ma don vi"
+        name="filterCode"
+        placeholder="Nhap ma don vi"
+        [ngModelOptions]="{ standalone: true }"
+        [(ngModel)]="filterModel['code']"
+      ></ss-input>
+
+      <div class="tree-filter-field">
+        <label class="tree-filter-label">Trang thai API</label>
+        <label class="tree-filter-option" *ngFor="let option of statusFilterOptions">
+          <input
+            type="checkbox"
+            [ngModelOptions]="{ standalone: true }"
+            [ngModel]="isStatusFilterChecked(filterModel, option.value)"
+            (ngModelChange)="toggleStatusFilter(filterModel, option.value, $event)"
+          />
+          <span>{{ option.text }}</span>
+        </label>
+      </div>
+    </div>
+  </ng-template>
+
   <ss-tree-table
     [data]="rows"
     [columns]="columns"
@@ -31,3 +64,141 @@
     (visibleColumnsChange)="onVisibleColumnsChange($event)"
   ></ss-tree-table>
 </section>
+
+<ss-dialog
+  [visible]="isCreateDialogOpen"
+  (visibleChange)="isCreateDialogOpen = $event"
+  title="Them moi to chuc"
+  width="720px"
+  [maskClosable]="!creatingOrganization"
+  [closable]="!creatingOrganization"
+  [buttons]="createDialogButtons"
+  (onButtonClick)="onCreateDialogAction($event)"
+>
+  <div class="create-form">
+    <ss-input
+      label="Ma to chuc"
+      name="code"
+      placeholder="VD: HR_TEAM"
+      [required]="true"
+      requiredState="true"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.code"
+    ></ss-input>
+
+    <ss-input
+      label="Ten to chuc"
+      name="name"
+      placeholder="VD: Phong nhan su"
+      [required]="true"
+      requiredState="true"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.name"
+    ></ss-input>
+
+    <ss-input
+      label="Loai to chuc"
+      name="typeCode"
+      placeholder="VD: DEPARTMENT"
+      [required]="true"
+      requiredState="true"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.typeCode"
+    ></ss-input>
+
+    <ss-input
+      label="Ma cha"
+      name="parentCode"
+      placeholder="De trong neu la don vi goc"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.parentCode"
+    ></ss-input>
+
+    <ss-input
+      label="Trang thai"
+      name="status"
+      placeholder="ACTIVE hoac INACTIVE"
+      [required]="true"
+      requiredState="true"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.status"
+    ></ss-input>
+
+    <ss-input
+      label="Dia chi"
+      name="address"
+      placeholder="VD: Ha Noi"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.address"
+    ></ss-input>
+
+    <ss-input
+      class="create-form__full"
+      label="Mo ta"
+      name="description"
+      type="textarea"
+      [rows]="3"
+      [ngModelOptions]="{ standalone: true }"
+      [(ngModel)]="createForm.description"
+    ></ss-input>
+
+    <p class="create-form__error" *ngIf="createErrorMessage">{{ createErrorMessage }}</p>
+  </div>
+</ss-dialog>
+
+<ss-dialog
+  [visible]="isDetailDialogOpen"
+  (visibleChange)="isDetailDialogOpen = $event"
+  title="Chi tiet to chuc"
+  width="680px"
+>
+  <div class="detail-state" *ngIf="loadingDetail">Dang tai chi tiet...</div>
+  <div class="detail-state detail-state--error" *ngIf="!loadingDetail && detailErrorMessage">
+    {{ detailErrorMessage }}
+  </div>
+  <dl class="detail-grid" *ngIf="!loadingDetail && selectedOrganizationDetail">
+    <div>
+      <dt>ID</dt>
+      <dd>{{ selectedOrganizationDetail.id }}</dd>
+    </div>
+    <div>
+      <dt>Ma to chuc</dt>
+      <dd>{{ selectedOrganizationDetail.code }}</dd>
+    </div>
+    <div>
+      <dt>Ten to chuc</dt>
+      <dd>{{ selectedOrganizationDetail.name }}</dd>
+    </div>
+    <div>
+      <dt>Trang thai</dt>
+      <dd>{{ selectedOrganizationDetail.status }}</dd>
+    </div>
+    <div>
+      <dt>Loai</dt>
+      <dd>{{ selectedOrganizationDetail.typeName || selectedOrganizationDetail.typeCode || '-' }}</dd>
+    </div>
+    <div>
+      <dt>Don vi cha</dt>
+      <dd>{{ selectedOrganizationDetail.parentName || selectedOrganizationDetail.parentCode || '-' }}</dd>
+    </div>
+    <div>
+      <dt>Dia chi</dt>
+      <dd>{{ selectedOrganizationDetail.address || '-' }}</dd>
+    </div>
+    <div class="detail-grid__full">
+      <dt>Mo ta</dt>
+      <dd>{{ selectedOrganizationDetail.description || '-' }}</dd>
+    </div>
+  </dl>
+</ss-dialog>
+
+<ss-popup
+  [visible]="resultPopup.visible"
+  (visibleChange)="resultPopup.visible = $event"
+  [type]="resultPopup.type"
+  [title]="resultPopup.title"
+  [buttons]="resultPopupButtons"
+  (onButtonClick)="onResultPopupAction($event)"
+>
+  {{ resultPopup.message }}
+</ss-popup>

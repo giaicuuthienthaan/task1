@@ -1,6 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
+  SsDialogButtonAction,
+  SsDialogComponent,
+  SsDialogPopupButton,
+  SsButtonComponent,
+  SsInputComponent,
+  SsPopupButton,
+  SsPopupButtonAction,
+  SsPopupComponent,
+  SsPopupType,
   SsTreeTableActionClickEvent,
   SsTreeTableCheckedChangeEvent,
   SsTreeTableColumn,
@@ -8,6 +18,7 @@ import {
   SsTreeTableConfig,
   SsTreeTableExpandedChangeEvent,
   SsTreeTableFilterChangeEvent,
+  SsTreeTableFilterValue,
   SsTreeTablePageChangeEvent,
   SsTreeTableSearchChangeEvent,
   SsTreeTableToolbarActionEvent,
@@ -15,18 +26,31 @@ import {
 } from '@platform/ui-kit';
 import {
   ApiResponse,
+  OrganizationCreatePayload,
   OrganizationApiNode,
+  OrganizationDetail,
   OrganizationTreeDemoService,
 } from '../../service/organization-tree-demo.service';
 
 @Component({
   selector: 'app-tree-table-demo',
   standalone: true,
-  imports: [CommonModule, SsTreeTableComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SsTreeTableComponent,
+    SsDialogComponent,
+    SsButtonComponent,
+    SsInputComponent,
+    SsPopupComponent,
+  ],
   templateUrl: './tree-table-demo.html',
   styleUrl: './tree-table-demo.css',
 })
 export class TreeTableDemoComponent implements OnInit {
+  @ViewChild('organizationFilterTemplate', { static: true })
+  private organizationFilterTemplate?: TemplateRef<unknown>;
+
   // Inject service riêng để gọi API organization.
   private readonly organizationService = inject(OrganizationTreeDemoService);
 
@@ -41,6 +65,29 @@ export class TreeTableDemoComponent implements OnInit {
   // rows là data truyền vào [data] của ss-tree-table.
   // Demo đang dùng flat data theo chuẩn: key, parentKey, expandable + các field nghiệp vụ.
   rows: OrganizationApiNode[] = [];
+  isCreateDialogOpen = false;
+  creatingOrganization = false;
+  createErrorMessage = '';
+  createForm: OrganizationCreatePayload = this.emptyCreateForm();
+  resultPopup: { visible: boolean; type: SsPopupType; title: string; message: string } = {
+    visible: false,
+    type: 'success',
+    title: '',
+    message: '',
+  };
+  createDialogButtons: SsDialogPopupButton[] = [
+    { label: 'Huy', type: 'default', action: 'cancel' },
+    { label: 'Luu', type: 'primary', action: 'confirm' },
+  ];
+  isDetailDialogOpen = false;
+  loadingDetail = false;
+  detailErrorMessage = '';
+  selectedOrganizationDetail: OrganizationDetail | null = null;
+  resultPopupButtons: SsPopupButton[] = [{ label: 'Dong', type: 'primary', action: 'close' }];
+  readonly statusFilterOptions = [
+    { text: 'Hoat dong', value: 'ACTIVE' },
+    { text: 'Khong hoat dong', value: 'INACTIVE' },
+  ];
   // Lưu các node đã load children thành công. Nếu user đóng/mở lại node thì không gọi API lặp.
   private readonly loadedChildKeys = new Set<string>();
   // Lưu các node đang gọi API children. Dùng để chặn double click/click nhanh gây request trùng.
@@ -52,19 +99,31 @@ export class TreeTableDemoComponent implements OnInit {
     // Bật lazy để pagination do backend xử lý.
     // Nếu không bật, component sẽ tự cắt page trên 6 rows đã load và page 2 sẽ bị rỗng.
     lazy: true,
+    // Demo vẫn muốn thao tác search/filter/sort trên dữ liệu đã load, đồng thời emit event để có thể nối API sau này.
+    queryMode: 'hybrid',
     // Hiển thị header cột.
+    showHeader: true,
     // Hiển thị checkbox chọn dòng.
     showCheckbox: true,
+    
+    // Cho phép kéo mép header để thay đổi độ rộng cột giống ss-table.
+    columns: {
+      resizable: true,
+      defaultWidth: '160px',
+      minWidth: 96,
+    },
     // Cho phép hiển thị status built-in nếu column có type='status'.
     showStatus: true,
     // Khi chọn cha thì chọn/bỏ chọn cả cây con.
     cascadeSelection: true,
     // Chiều cao mỗi row trong table.
     rowHeight: 44,
+    // Chiều cao cố định vùng thân bảng, giống settings.scrollY của ss-data-table.
+    scrollY: '320px',
     // Độ thụt vào mỗi cấp tree.
     indent: 24,
-    // striped=false: không hiển thị nền xen kẽ theo dòng.
-    striped: false,
+    // striped=true: hiển thị nền xám/trắng xen kẽ theo dòng giống ss-data-table.
+    striped: true,
     // hoverable=true: hover vào row có background.
     hoverable: true,
     toolbar: {
@@ -75,6 +134,16 @@ export class TreeTableDemoComponent implements OnInit {
         // Có nút clear search.
         clearable: true,
       },
+      // Bật các nút thao tác chung cạnh Filter, ví dụ Thêm mới.
+      primary: true,
+      primaryActions: [
+        {
+          key: 'create',
+          label: 'Them moi',
+          icon: 'plus',
+          type: 'primary',
+        },
+      ],
       // Bật các nút sort/settings/filter trên toolbar.
       sort: true,
       settings: true,
@@ -116,9 +185,6 @@ export class TreeTableDemoComponent implements OnInit {
       sortable: true,
       // value ưu tiên cao hơn field. Ở đây lấy name từ data, nếu không có thì dùng label đã normalize.
       value: (node) => node.data?.name ?? node.label,
-      // filterType='text' sẽ hiển thị input text trong panel filter.
-      filterType: 'text',
-      filterPlaceholder: 'Nhap ten don vi',
     },
     {
       key: 'code',
@@ -147,12 +213,6 @@ export class TreeTableDemoComponent implements OnInit {
       sortable: true,
       // Formatter biến value raw thành text hiển thị. Nếu value null/undefined thì hiển thị '-'.
       formatter: (value) => (value === 'ACTIVE' ? 'ACTIVE' : String(value ?? '-')),
-      // multiselect hiển thị danh sách checkbox trong panel filter.
-      filterType: 'multiselect',
-      filters: [
-        { text: 'hoat dong', value: 'ACTIVE' },
-        { text: 'khong hoat dong', value: 'INACTIVE' },
-      ],
     },
     {
       key: 'status',
@@ -169,13 +229,17 @@ export class TreeTableDemoComponent implements OnInit {
       width: 110,
       actions: [
         { key: 'view', label: 'Xem chi tiet' },
-        { key: 'edit', label: 'Cap nhat' },
-        { key: 'disable', label: 'Tam ngung', danger: true },
+        { key: 'edit', label: 'Sua' },
+        { key: 'delete', label: 'Xoa', danger: true },
       ],
     },
   ];
 
   ngOnInit(): void {
+    this.config = {
+      ...this.config,
+      filterTemplate: this.organizationFilterTemplate as SsTreeTableConfig<OrganizationApiNode>['filterTemplate'],
+    };
     // Khi vào màn hình, chỉ load danh sách root/parent trước.
     // Children sẽ load lazy khi user click tam giác expand.
     this.loadRootOrganizations();
@@ -231,15 +295,15 @@ export class TreeTableDemoComponent implements OnInit {
     this.config = { ...this.config, loading: true };
   }
 
+  //load dữ liệu con
   onExpandedChange(event: SsTreeTableExpandedChangeEvent<OrganizationApiNode>) {
     // Event có sẵn của ss-tree-table: bắn ra cả khi mở và khi đóng node.
     // Dùng ở demo để hiển thị log, không gọi API tại đây để tránh gọi cả lúc collapse.
     this.eventLog = `${event.expanded ? 'Mo' : 'Dong'}: ${event.node.label}`;
   }
 
+  //khi click expand thì gọi API lấy children
   onNodeExpand(event: SsTreeTableExpandedChangeEvent<OrganizationApiNode>): void {
-    // nodeExpand chỉ bắn ra khi user mở node. Đây là nơi demo lazy-load children.
-    // Demo dùng code làm key, nên ưu tiên event.node.data.code; fallback sang event.key nếu data không có.
     const parentCode = event.node.data?.code ?? String(event.key);
     // Nếu node đã load children rồi, hoặc đang load, thì thoát sớm để không gọi API trùng.
     if (this.loadedChildKeys.has(parentCode) || this.loadingChildKeys.has(parentCode)) return;
@@ -275,6 +339,102 @@ export class TreeTableDemoComponent implements OnInit {
         this.loadingChildKeys.delete(parentCode);
         this.eventLog = `Khong the tai don vi con cua ${event.node.label}`;
       },
+      });
+  }
+
+// THÊM MỚI TỔ CHỨC
+  openCreateDialog(): void {
+    this.createForm = this.emptyCreateForm();
+    this.createErrorMessage = '';
+    this.isCreateDialogOpen = true;
+  }
+
+  closeCreateDialog(): void {
+    if (this.creatingOrganization) return;
+    this.isCreateDialogOpen = false;
+    this.createErrorMessage = '';
+  }
+
+  onCreateDialogAction(action: SsDialogButtonAction): void {
+    if (action === 'confirm') {
+      this.submitCreateOrganization();
+      return;
+    }
+    if (action === 'cancel' || action === 'close') {
+      this.closeCreateDialog();
+    }
+  }
+
+  onResultPopupAction(_action: SsPopupButtonAction): void {
+    this.resultPopup = {
+      ...this.resultPopup,
+      visible: false,
+    };
+  }
+
+  openDetailDialog(node: OrganizationApiNode): void {
+    if (!node.id) {
+      this.eventLog = 'Khong tim thay ID cua dong can xem';
+      return;
+    }
+
+    this.isDetailDialogOpen = true;
+    this.loadingDetail = true;
+    this.detailErrorMessage = '';
+    this.selectedOrganizationDetail = null;
+    this.eventLog = `Dang tai chi tiet ${node.name}...`;
+
+    this.organizationService.getOrganizationById(node.id).subscribe({
+      next: (detail) => {
+        this.selectedOrganizationDetail = detail;
+        this.loadingDetail = false;
+        this.eventLog = `Da tai chi tiet ${detail.name}`;
+      },
+      error: (error) => {
+        this.loadingDetail = false;
+        this.detailErrorMessage = error?.error?.message || 'Khong the tai chi tiet to chuc';
+        this.eventLog = 'Tai chi tiet that bai';
+        console.error('Cannot load organization detail:', error);
+      },
+    });
+  }
+
+  submitCreateOrganization(): void {
+    const payload = this.normalizeCreatePayload();
+    if (!payload.code || !payload.name || !payload.typeCode || !payload.status) {
+      this.createErrorMessage = 'Vui long nhap code, ten, loai va trang thai';
+      return;
+    }
+
+    this.creatingOrganization = true;
+    this.syncCreateDialogButtons();
+    this.createErrorMessage = '';
+    this.organizationService.createOrganization(payload).subscribe({
+      next: (created) => {
+        this.creatingOrganization = false;
+        this.syncCreateDialogButtons();
+        this.isCreateDialogOpen = false;
+        this.eventLog = `Da tao don vi ${created.name}`;
+        this.resultPopup = {
+          visible: true,
+          type: 'success',
+          title: 'Tao to chuc thanh cong',
+          message: `Da tao don vi ${created.name}`,
+        };
+        this.loadRootOrganizations(this.config.pagination?.pageIndex ?? 1, this.config.pagination?.pageSize ?? 5);
+      },
+      error: (error) => {
+        this.creatingOrganization = false;
+        this.syncCreateDialogButtons();
+        this.createErrorMessage = error?.error?.message || 'Khong the tao to chuc';
+        this.resultPopup = {
+          visible: true,
+          type: 'error',
+          title: 'Tao to chuc that bai',
+          message: this.createErrorMessage,
+        };
+        console.error('Cannot create organization:', error);
+      },
     });
   }
 
@@ -298,12 +458,38 @@ export class TreeTableDemoComponent implements OnInit {
     this.eventLog = `Filter: ${event.filters.length} dieu kien`;
   }
 
+  isStatusFilterChecked(filterModel: Record<string, SsTreeTableFilterValue>, value: string): boolean {
+    const current = filterModel['apiStatus'];
+    return Array.isArray(current) && current.some((item) => String(item) === value);
+  }
+
+  toggleStatusFilter(
+    filterModel: Record<string, SsTreeTableFilterValue>,
+    value: string,
+    checked: boolean,
+  ): void {
+    const current = filterModel['apiStatus'];
+    const selectedValues = Array.isArray(current) ? current : [];
+    filterModel['apiStatus'] = checked
+      ? [...selectedValues, value]
+      : selectedValues.filter((item) => String(item) !== value);
+  }
+
   onActionClick(event: SsTreeTableActionClickEvent<OrganizationApiNode>) {
-    // Event khi click action trong cột Thao tác.
+    if (event.action.key === 'view') {
+      this.openDetailDialog(event.node.data ?? (event.node as unknown as OrganizationApiNode));
+      return;
+    }
+
     this.eventLog = `${event.action.label}: ${event.node.label}`;
   }
 
   onToolbarAction(event: SsTreeTableToolbarActionEvent) {
+    if (event.type === 'primary' && event.actionKey === 'create') {
+      this.openCreateDialog();
+      return;
+    }
+
     // Nút reload của toolbar được component emit như một toolbarAction.
     if (event.type === 'reload') {
       this.loadRootOrganizations();
@@ -315,5 +501,36 @@ export class TreeTableDemoComponent implements OnInit {
   onVisibleColumnsChange(event: SsTreeTableVisibleColumnsChangeEvent) {
     // Event settings ẩn/hiện cột. Demo hiển thị số cột đang hiện/ẩn.
     this.eventLog = `Hien ${event.visibleColumnKeys.length} cot, an ${event.hiddenColumnKeys.length} cot`;
+  }
+  private emptyCreateForm(): OrganizationCreatePayload {
+    return {
+      code: '',
+      name: '',
+      description: '',
+      address: '',
+      typeCode: '',
+      parentCode: '',
+      status: 'ACTIVE',
+    };
+  }
+
+  //hàm chuẩn hóa payload trước khi gọi API createOrganization
+  private normalizeCreatePayload(): OrganizationCreatePayload {
+    return {
+      code: this.createForm.code.trim().toUpperCase(),
+      name: this.createForm.name.trim(),
+      description: this.createForm.description?.trim() || undefined,
+      address: this.createForm.address?.trim() || undefined,
+      typeCode: this.createForm.typeCode.trim().toUpperCase(),
+      parentCode: this.createForm.parentCode?.trim().toUpperCase() || undefined,
+      status: this.createForm.status,
+    };
+  }
+
+  private syncCreateDialogButtons(): void {
+    this.createDialogButtons = [
+      { label: 'Huy', type: 'default', action: 'cancel', disabled: this.creatingOrganization },
+      { label: 'Luu', type: 'primary', action: 'confirm', loading: this.creatingOrganization, disabled: this.creatingOrganization },
+    ];
   }
 }

@@ -53,6 +53,30 @@ export interface OrganizationRootResult {
   total: number;
 }
 
+export interface OrganizationCreatePayload {
+  code: string;
+  name: string;
+  description?: string;
+  address?: string;
+  typeCode: string;
+  parentCode?: string;
+  status: 'ACTIVE' | 'INACTIVE' | string;
+}
+
+export interface OrganizationDetail {
+  id: number;
+  code: string;
+  name: string;
+  description?: string | null;
+  address?: string | null;
+  typeCode?: string | null;
+  typeName?: string | null;
+  parentCode?: string | null;
+  parentName?: string | null;
+  status: 'ACTIVE' | 'INACTIVE' | string;
+  path?: string | null;
+}
+
 // Dùng URL tương đối để Angular dev-server proxy sang BE, tránh lỗi CORS khi chạy local.
 const ORGANIZATION_API_URL = '/master-data/api/organizations';
 
@@ -93,6 +117,18 @@ export class OrganizationTreeDemoService {
       .get<ApiResponse<OrganizationApiNode[]>>(`${ORGANIZATION_API_URL}/children/${encodeURIComponent(parentCode)}`)
       //pip xử lý dữ liệu trả về từ Observable
       .pipe(map((response) => (response.data ?? []).map((item) => this.toTreeRow(item, parentCode))));
+  }
+
+  createOrganization(payload: OrganizationCreatePayload): Observable<OrganizationApiNode> {
+    return this.http
+      .post<ApiResponse<OrganizationApiNode>>(ORGANIZATION_API_URL, payload)
+      .pipe(map((response) => this.toTreeRow(response.data, response.data?.parentCode ?? payload.parentCode ?? null)));
+  }
+
+  getOrganizationById(id: number): Observable<OrganizationDetail> {
+    return this.http
+      .get<ApiResponse<OrganizationDetail>>(`${ORGANIZATION_API_URL}/${id}`)
+      .pipe(map((response) => response.data));
   }
 
   private toTreeRow(item: OrganizationApiNode, parentKey: string | null): OrganizationApiNode {

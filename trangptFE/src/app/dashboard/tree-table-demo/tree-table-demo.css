@@ -132,6 +132,46 @@
   padding: 5px 8px;
 }
 
+.tree-filter-form {
+  display: grid;
+  gap: 14px;
+}
+
+.tree-filter-field {
+  display: grid;
+  gap: 8px;
+}
+
+.tree-filter-label {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tree-filter-option {
+  align-items: center;
+  color: #0f172a;
+  display: flex;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.create-form {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.create-form__full,
+.create-form__error {
+  grid-column: 1 / -1;
+}
+
+.create-form__error {
+  color: #dc2626;
+  margin: 0;
+}
+
 @media (max-width: 760px) {
   .page-title {
     display: block;
@@ -141,4 +181,9 @@
     display: inline-block;
     margin-top: 12px;
   }
+
+  .create-form {
+    grid-template-columns: 1fr;
+  }
+
 }
